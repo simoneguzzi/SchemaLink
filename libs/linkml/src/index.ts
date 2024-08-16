@@ -162,14 +162,24 @@ export const toGraph = (
     .filter(([key, { is_a }]) => is_a === SpiresCoreClasses.Triple)
     .forEach(([key, { slot_usage }], index) => {
       if (slot_usage) {
-        const fromNode = nodes.find(
+        const fromNodeIndex = nodes.findIndex(
           (node) => node.caption === slot_usage['subject'].range
         );
-        const toNode = nodes.find(
+        const toNodeIndex = nodes.findIndex(
           (node) => node.caption === slot_usage['object'].range
         );
 
-        if (fromNode && toNode) {
+        if (fromNodeIndex >= 0 && toNodeIndex >= 0) {
+          const fromNode = {
+            ...nodes[fromNodeIndex],
+            examples: slot_usage['subject'].annotations?.['prompt.examples'],
+          };
+          const toNode = {
+            ...nodes[toNodeIndex],
+            examples: slot_usage['object'].annotations?.['prompt.examples'],
+          };
+          nodes.splice(fromNodeIndex, 1, fromNode);
+          nodes.splice(toNodeIndex, 1, toNode);
           relationships.push({
             relationshipType: RelationshipType.ASSOCIATION,
             fromId: fromNode.id,
@@ -179,6 +189,7 @@ export const toGraph = (
             type: '',
             id: (index + nextRelationshipId).toString(),
             cardinality: Cardinality.ONE_TO_MANY,
+            examples: slot_usage['predicate'].annotations?.['prompt.examples'],
           });
         }
       }
