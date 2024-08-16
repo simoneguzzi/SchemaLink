@@ -62,7 +62,10 @@ export const fromGraph = (
         description,
         is_a: SpiresCoreClasses.TextWithTriples,
         slot_usage: {
-          triples: relationships[0]
+          triples: relationships.filter(
+            ({ relationshipType }) =>
+              relationshipType === RelationshipType.ASSOCIATION
+          )[0]
             ? {
                 range: `${toRelationshipClassName(
                   relationships[0]
@@ -82,20 +85,25 @@ export const fromGraph = (
         }),
         {}
       ),
-      ...relationships.reduce(
-        (classes: Record<string, LinkMLClass>, relationship) => ({
-          ...classes,
-          [`${toRelationshipClassName(relationship)}Relationship`]:
-            relationshipToRelationshipClass(
-              relationship,
-              findNode,
-              toRelationshipClassName
-            ),
-          [`${toRelationshipClassName(relationship)}Predicate`]:
-            relationshipToPredicateClass(relationship, findNode),
-        }),
-        {}
-      ),
+      ...relationships
+        .filter(
+          ({ relationshipType }) =>
+            relationshipType === RelationshipType.ASSOCIATION
+        )
+        .reduce(
+          (classes: Record<string, LinkMLClass>, relationship) => ({
+            ...classes,
+            [`${toRelationshipClassName(relationship)}Relationship`]:
+              relationshipToRelationshipClass(
+                relationship,
+                findNode,
+                toRelationshipClassName
+              ),
+            [`${toRelationshipClassName(relationship)}Predicate`]:
+              relationshipToPredicateClass(relationship, findNode),
+          }),
+          {}
+        ),
     },
   };
 };
@@ -104,58 +112,77 @@ export const toGraph = (
   { classes }: LinkML,
   ontologies: Ontology[]
 ): LinkMLGraph => {
-  const nodes: LinkMLNode[] = Object.entries(classes)
-    .filter(([key, value]) => value.is_a === SpiresCoreClasses.NamedEntity)
-    .map(([key, { attributes, id_prefixes }], index) => {
-      return {
-        id: index.toString(),
-        caption: key,
-        properties: Object.entries(attributes ?? {}).reduce(
-          (properties: Record<string, string>, [key, { description }]) => ({
-            ...properties,
-            [key]: description ?? '',
-          }),
-          {}
-        ),
-        entityType: 'node',
-        ontologies:
-          id_prefixes &&
-          ontologies.filter((ontology) =>
-            id_prefixes.includes(ontology.id.toLocaleUpperCase())
-          ),
-      };
-    });
-  const relationships: LinkMLRelationship[] = Object.entries(classes)
-    .filter(([key, value]) => value.is_a === SpiresCoreClasses.Triple)
-    .map(([key, { slot_usage }], index) => {
-      if (!slot_usage) {
-        return null;
+  const nodes: LinkMLNode[] = [];
+  const relationships: LinkMLRelationship[] = [];
+  let nextNodeId = nodes.length;
+  let nextRelationshipId = 0;
+  let noNewNodes = false;
+  while (!noNewNodes) {
+    noNewNodes = true;
+    Object.entries(classes).forEach(
+      ([key, { is_a, mixins, attributes, id_prefixes }]) => {
+        const self = nodes.find(({ caption }) => caption === key);
+        const parent = nodes.find(
+          ({ caption }) => caption === is_a || (mixins && caption in mixins)
+        );
+        if (!self && (is_a === SpiresCoreClasses.NamedEntity || parent)) {
+          noNewNodes = false;
+          if (parent) {
+            nextRelationshipId = relationships.push({
+              relationshipType: RelationshipType.INHERITANCE,
+              fromId: nextNodeId.toString(),
+              toId: parent.id,
+              properties: {},
+              entityType: 'relationship',
+              type: '',
+              id: nextRelationshipId.toString(),
+            });
+          }
+          nextNodeId = nodes.push({
+            id: nextNodeId.toString(),
+            caption: key,
+            properties: Object.entries(attributes ?? {}).reduce(
+              (properties: Record<string, string>, [key, { description }]) => ({
+                ...properties,
+                [key]: description ?? '',
+              }),
+              {}
+            ),
+            entityType: 'node',
+            ontologies: ontologies.filter(
+              ({ id }) =>
+                id_prefixes && id_prefixes.includes(id.toLocaleUpperCase())
+            ),
+          });
+        }
       }
-      const fromNode = nodes.find(
-        (node) => node.caption === slot_usage['subject'].range
-      );
-      const toNode = nodes.find(
-        (node) => node.caption === slot_usage['object'].range
-      );
+    );
+  }
+  Object.entries(classes)
+    .filter(([key, { is_a }]) => is_a === SpiresCoreClasses.Triple)
+    .forEach(([key, { slot_usage }], index) => {
+      if (slot_usage) {
+        const fromNode = nodes.find(
+          (node) => node.caption === slot_usage['subject'].range
+        );
+        const toNode = nodes.find(
+          (node) => node.caption === slot_usage['object'].range
+        );
 
-      if (!fromNode || !toNode) {
-        return null;
+        if (fromNode && toNode) {
+          relationships.push({
+            relationshipType: RelationshipType.ASSOCIATION,
+            fromId: fromNode.id,
+            toId: toNode.id,
+            properties: {},
+            entityType: 'relationship',
+            type: '',
+            id: (index + nextRelationshipId).toString(),
+            cardinality: Cardinality.ONE_TO_MANY,
+          });
+        }
       }
-      return {
-        relationshipType: RelationshipType.ASSOCIATION,
-        fromId: fromNode.id,
-        toId: toNode.id,
-        properties: {},
-        entityType: 'relationship',
-        type: '',
-        id: index.toString(),
-        cardinality: Cardinality.ONE_TO_MANY,
-      };
-    })
-    .filter(
-      (relationship: LinkMLRelationship | null) => !!relationship
-      // Casting as we are filtering out nulls anyway.
-    ) as LinkMLRelationship[];
+    });
   return {
     nodes,
     relationships,
