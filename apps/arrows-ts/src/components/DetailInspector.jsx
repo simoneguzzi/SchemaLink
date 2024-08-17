@@ -32,6 +32,11 @@ import { DetailToolbox } from './DetailToolbox';
 import { CaptionInspector } from './CaptionInspector';
 
 export default class DetailInspector extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { additionalExamplesOptions: [] };
+  }
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return (
       nextProps.inspectorVisible &&
@@ -212,6 +217,28 @@ export default class DetailInspector extends Component {
       if (entities.length < 2) {
         const { ontologies: entityOntologies, examples } = entities[0];
         const { ontologies: storeOntologies, isFetching } = ontologies;
+        const examplesOptions = [
+          examples,
+          ...(entityOntologies
+            ? entityOntologies.flatMap((ontology) => {
+                const matching = storeOntologies.find(
+                  ({ id }) => ontology.id === id
+                );
+                return matching ? matching.examples : [];
+              })
+            : []),
+          ...this.state.additionalExamplesOptions,
+        ].map((example, index) => {
+          return { key: index, text: example, value: example };
+        });
+        const onAddExample = (example) =>
+          this.setState({
+            ...this.state,
+            additionalExamplesOptions: [
+              ...this.state.additionalExamplesOptions,
+              example,
+            ],
+          });
 
         fields.push(
           <Form.Field key="_ontology">
@@ -250,12 +277,16 @@ export default class DetailInspector extends Component {
         fields.push(
           <Form.Field key="_examples">
             <label>Examples</label>
-            <Input
+            <Dropdown
               value={examples}
-              onChange={(event) =>
-                onSaveExamples(selection, event.target.value)
-              }
+              allowAdditions
+              search
+              options={examplesOptions}
+              selection
+              onChange={(event, { value }) => onSaveExamples(selection, value)}
               placeholder={'Provide examples for this entity'}
+              loading={isFetching}
+              onAddItem={(event, { value }) => onAddExample(value)}
             />
           </Form.Field>
         );
