@@ -6,6 +6,9 @@ export interface OntologiesAction
     | 'LOAD_ONTOLOGIES_REQUEST'
     | 'LOAD_ONTOLOGIES_SUCCESS'
     | 'LOAD_ONTOLOGIES_FAILURE'
+    | 'LOAD_ONTOLOGY_EXAMPLES_REQUEST'
+    | 'LOAD_ONTOLOGY_EXAMPLES_SUCCESS'
+    | 'LOAD_ONTOLOGY_EXAMPLES_FAILURE'
   > {
   ontologies?: Ontology[];
 }
@@ -23,4 +26,19 @@ export const loadOntologiesSuccess = (
 
 export const loadOntologiesFailure = (): OntologiesAction => ({
   type: 'LOAD_ONTOLOGIES_FAILURE',
+});
+
+export const loadOntologyExamplesRequest = (): OntologiesAction => ({
+  type: 'LOAD_ONTOLOGY_EXAMPLES_REQUEST',
+});
+
+export const loadOntologyExamplesSuccess = (
+  ontologies: Ontology[]
+): OntologiesAction => ({
+  type: 'LOAD_ONTOLOGY_EXAMPLES_SUCCESS',
+  ontologies,
+});
+
+export const loadOntologyExamplesFailure = (): OntologiesAction => ({
+  type: 'LOAD_ONTOLOGY_EXAMPLES_FAILURE',
 });
