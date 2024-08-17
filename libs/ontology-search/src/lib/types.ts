@@ -23,12 +23,20 @@ export type OntologyConfig = {
   fileLocation: string;
 };
 
-type Embedded = {
+type OntologiesEmbedded = {
   ontologies: { config: OntologyConfig }[];
 };
 
 export type OntologiesJson = {
-  _embedded: Embedded;
+  _embedded: OntologiesEmbedded;
   links: Links;
   page: Page;
+};
+
+type Term = { label: string; obo_id: string };
+
+type OntologyEmbedded = { terms: Term[] };
+
+export type OntologyJson = {
+  _embedded: OntologyEmbedded;
 };
