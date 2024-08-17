@@ -18,6 +18,25 @@ const ontologies = (
       return { ...state, ontologies, isFetching: false };
     case 'LOAD_ONTOLOGIES_FAILURE':
       return { ...state, hardcodedOntologies, isFetching: false };
+    case 'LOAD_ONTOLOGY_EXAMPLES_REQUEST':
+      return { ...state, isFetching: true };
+    case 'LOAD_ONTOLOGY_EXAMPLES_SUCCESS':
+      return {
+        ...state,
+        ontologies: state.ontologies.map((ontology) => {
+          const matching = ontologies?.find(({ id }) => id === ontology.id);
+          if (matching) {
+            return {
+              ...ontology,
+              examples: matching.examples,
+            };
+          }
+          return ontology;
+        }),
+        isFetching: false,
+      };
+    case 'LOAD_ONTOLOGY_EXAMPLES_FAILURE':
+      return { ...state, hardcodedOntologies, isFetching: false };
     default:
       return state;
   }
