@@ -17,7 +17,7 @@ const ontologies = (
     case 'LOAD_ONTOLOGIES_SUCCESS':
       return { ...state, ontologies, isFetching: false };
     case 'LOAD_ONTOLOGIES_FAILURE':
-      return { ...state, hardcodedOntologies, isFetching: false };
+      return { ...state, ontologies: hardcodedOntologies, isFetching: false };
     case 'LOAD_ONTOLOGY_EXAMPLES_REQUEST':
       return { ...state, isFetching: true };
     case 'LOAD_ONTOLOGY_EXAMPLES_SUCCESS':
