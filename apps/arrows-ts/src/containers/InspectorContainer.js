@@ -19,10 +19,16 @@ import {
   setExamples,
   setCardinality,
 } from '../actions/graph';
+import {
+  loadOntologyExamplesRequest,
+  loadOntologyExamplesSuccess,
+  loadOntologyExamplesFailure,
+} from '../actions/ontologies';
 import DetailInspector from '../components/DetailInspector';
 import { getSelectedNodes } from '../selectors/inspection';
 import { getOntologies, getPresentGraph } from '../selectors';
 import { toggleSelection } from '../actions/selection';
+import { examples } from '@neo4j-arrows/ontology-search';
 
 const mapStateToProps = (state) => {
   const graph = getPresentGraph(state);
@@ -92,6 +98,18 @@ const mapDispatchToProps = (dispatch) => {
     },
     onSaveOntology: (selection, ontologies) => {
       dispatch(setOntology(selection, ontologies));
+      dispatch(loadOntologyExamplesRequest());
+      Promise.all(
+        ontologies.map((ontology) =>
+          examples(ontology).then((examples) => {
+            return { ...ontology, examples };
+          })
+        )
+      )
+        .then((resolvedOntologies) => {
+          dispatch(loadOntologyExamplesSuccess(resolvedOntologies));
+        })
+        .catch((error) => dispatch(loadOntologyExamplesFailure()));
     },
     onSaveCardinality: (selection, cardinality) => {
       dispatch(setCardinality(selection, cardinality));
