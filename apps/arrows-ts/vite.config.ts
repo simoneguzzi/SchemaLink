@@ -9,6 +9,7 @@ export default defineConfig({
   server: {
     port: 4200,
     host: '0.0.0.0',
+    fs: { allow: ['../../node_modules/semantic-ui-css/themes/default/assets'] },
   },
 
   preview: {
