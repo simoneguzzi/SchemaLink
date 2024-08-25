@@ -42,6 +42,7 @@ export default class DetailInspector extends Component {
       nextProps.inspectorVisible &&
       (graphsDifferInMoreThanPositions(this.props.graph, nextProps.graph) ||
         this.props.selection !== nextProps.selection ||
+        this.props.ontologies !== nextProps.ontologies ||
         this.props.cachedImages !== nextProps.cachedImages)
     );
   }
