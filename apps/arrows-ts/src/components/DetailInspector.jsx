@@ -286,6 +286,7 @@ export default class DetailInspector extends Component {
               value={examples}
               allowAdditions
               search
+              clearable
               options={examplesOptions}
               selection
               onChange={(event, { value }) => onSaveExamples(selection, value)}
