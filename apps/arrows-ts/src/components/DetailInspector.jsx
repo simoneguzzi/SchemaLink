@@ -218,16 +218,20 @@ export default class DetailInspector extends Component {
       if (entities.length < 2) {
         const { ontologies: entityOntologies, examples } = entities[0];
         const { ontologies: storeOntologies, isFetching } = ontologies;
-        const examplesOptions = [
-          examples,
-          ...(entityOntologies
-            ? entityOntologies.flatMap((ontology) => {
+        const ontologiesExamples = entityOntologies
+          ? entityOntologies
+              .flatMap((ontology) => {
                 const matching = storeOntologies.find(
                   ({ id }) => ontology.id === id
                 );
                 return matching ? matching.examples : [];
               })
-            : []),
+              .toSorted((a, b) => Math.random() - 0.5)
+              .toSpliced(10)
+          : [];
+        const examplesOptions = [
+          examples,
+          ...ontologiesExamples,
           ...this.state.additionalExamplesOptions,
         ].map((example, index) => {
           return { key: index, text: example, value: example };
