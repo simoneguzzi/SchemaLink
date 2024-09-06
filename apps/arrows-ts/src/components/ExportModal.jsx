@@ -9,6 +9,8 @@ import {
   saveFavoriteExportTab,
 } from '../actions/localStorage';
 import ExportUrlPanel from './ExportUrlPanel';
+import { fromGraph, SpiresType } from '@neo4j-arrows/linkml';
+import yaml from 'js-yaml';
 
 class ExportModal extends Component {
   constructor(props) {
@@ -75,17 +77,25 @@ class ExportModal extends Component {
           </Tab.Pane>
         ),
       },
-      {
-        menuItem: 'LinkML',
-        render: () => (
-          <Tab.Pane attached={false}>
-            <ExportLinkMLPanel
-              graph={this.props.graph}
-              diagramName={this.props.diagramName}
-            />
-          </Tab.Pane>
-        ),
-      },
+      ...Object.values(SpiresType).map((spiresType) => {
+        return {
+          menuItem: spiresType,
+          render: () => (
+            <Tab.Pane attached={false}>
+              <ExportLinkMLPanel
+                linkMLString={yaml.dump(
+                  fromGraph(
+                    this.props.diagramName,
+                    this.props.graph,
+                    spiresType
+                  )
+                )}
+                diagramName={this.props.diagramName}
+              />
+            </Tab.Pane>
+          ),
+        };
+      }),
     ];
 
     return (

@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
 import { Form, Icon, TextArea } from 'semantic-ui-react';
 import { Base64 } from 'js-base64';
-import yaml from 'js-yaml';
-import { fromGraph } from '@neo4j-arrows/linkml';
 
-class ExportLinkMLPanel extends Component {
-  constructor(props) {
-    super(props);
-  }
+interface ExportLinkMLPanelProps {
+  diagramName: string;
+  linkMLString: string;
+}
 
+class ExportLinkMLPanel extends Component<ExportLinkMLPanelProps> {
   render() {
-    const linkMLString = yaml.dump(
-      fromGraph(this.props.diagramName, this.props.graph)
-    );
-
+    const { diagramName, linkMLString } = this.props;
     const handleDownloadPydantic = async () => {
       const response = await fetch(import.meta.env.VITE_GEN_PYDANTIC_ENDPOINT, {
         body: linkMLString,
@@ -23,7 +19,7 @@ class ExportLinkMLPanel extends Component {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', this.props.diagramName + '.py');
+      link.setAttribute('download', diagramName + '.py');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
