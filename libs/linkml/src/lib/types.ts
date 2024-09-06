@@ -8,6 +8,7 @@ export type Attribute = {
 export enum SpiresCoreClasses {
   NamedEntity = 'NamedEntity',
   RelationshipType = 'RelationshipType',
+  TextWithEntity = 'TextWithEntity',
   TextWithTriples = 'TextWithTriples',
   Triple = 'Triple',
 }
@@ -33,3 +34,9 @@ export type LinkML = {
   imports?: string[];
   license?: string;
 };
+
+export enum SpiresType {
+  LINKML = 'Pure LinkML',
+  RE = 'Spires RE',
+  ER = 'Spires ER',
+}
