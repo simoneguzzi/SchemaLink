@@ -6,9 +6,16 @@ import {
   Cardinality,
   Ontology,
 } from '@neo4j-arrows/model';
-import { LinkMLClass, LinkML, SpiresCoreClasses } from './lib/types';
+import {
+  LinkMLClass,
+  LinkML,
+  SpiresCoreClasses,
+  SpiresType,
+  Attribute,
+} from './lib/types';
 import {
   findNodeFactory,
+  toAttributeName,
   toClassName,
   toRelationshipClassNameFactory,
 } from './lib/naming';
@@ -21,6 +28,8 @@ import {
 import { nodeToClass } from './lib/nodes';
 import { toPrefixes } from './lib/ontologies';
 
+export { SpiresType } from './lib/types';
+
 type LinkMLNode = Omit<Node, 'style' | 'position'>;
 type LinkMLRelationship = Omit<Relationship, 'style'>;
 type LinkMLGraph = {
@@ -30,14 +39,60 @@ type LinkMLGraph = {
 
 export const fromGraph = (
   name: string,
-  { description, nodes, relationships }: Graph
+  { description, nodes, relationships }: Graph,
+  spiresType: SpiresType = SpiresType.RE
 ): LinkML => {
   const findNode = findNodeFactory(nodes);
   const findRelationshipFromNode =
     findRelationshipsFromNodeFactory(relationships);
   const toRelationshipClassName = toRelationshipClassNameFactory(nodes);
-
   const snakeCasedName = snakeCase(name);
+  const getRootClass = (): Record<'Document', LinkMLClass> | undefined => {
+    const core: LinkMLClass = {
+      tree_root: true,
+      description,
+    };
+    switch (spiresType) {
+      case SpiresType.RE:
+        return {
+          Document: {
+            ...core,
+            is_a: SpiresCoreClasses.TextWithTriples,
+            slot_usage: {
+              triples: relationships.filter(
+                ({ relationshipType }) =>
+                  relationshipType === RelationshipType.ASSOCIATION
+              )[0]
+                ? {
+                    range: `${toRelationshipClassName(
+                      relationships[0]
+                    )}Relationship`,
+                  }
+                : {},
+            },
+          },
+        };
+      case SpiresType.ER:
+        return {
+          Document: {
+            ...core,
+            is_a: SpiresCoreClasses.TextWithEntity,
+            attributes: nodes.reduce(
+              (attributes: Record<string, Attribute>, node) => ({
+                ...attributes,
+                [toAttributeName(node.caption)]: {
+                  range: toClassName(node.caption),
+                  multivalued: true,
+                },
+              }),
+              {}
+            ),
+          },
+        };
+      default:
+        return undefined;
+    }
+  };
 
   return {
     id: `https://example.com/${snakeCasedName}`,
@@ -57,23 +112,27 @@ export const fromGraph = (
     },
     imports: ['ontogpt:core', 'linkml:types'],
     classes: {
-      Document: {
-        tree_root: true,
-        description,
-        is_a: SpiresCoreClasses.TextWithTriples,
-        slot_usage: {
-          triples: relationships.filter(
+      ...getRootClass(),
+      ...([SpiresType.LINKML, SpiresType.RE].includes(spiresType) &&
+        relationships
+          .filter(
             ({ relationshipType }) =>
               relationshipType === RelationshipType.ASSOCIATION
-          )[0]
-            ? {
-                range: `${toRelationshipClassName(
-                  relationships[0]
-                )}Relationship`,
-              }
-            : {},
-        },
-      },
+          )
+          .reduce(
+            (classes: Record<string, LinkMLClass>, relationship) => ({
+              ...classes,
+              [`${toRelationshipClassName(relationship)}Relationship`]:
+                relationshipToRelationshipClass(
+                  relationship,
+                  findNode,
+                  toRelationshipClassName
+                ),
+              [`${toRelationshipClassName(relationship)}Predicate`]:
+                relationshipToPredicateClass(relationship, findNode),
+            }),
+            {}
+          )),
       ...nodes.reduce(
         (classes: Record<string, LinkMLClass>, node) => ({
           ...classes,
@@ -85,25 +144,6 @@ export const fromGraph = (
         }),
         {}
       ),
-      ...relationships
-        .filter(
-          ({ relationshipType }) =>
-            relationshipType === RelationshipType.ASSOCIATION
-        )
-        .reduce(
-          (classes: Record<string, LinkMLClass>, relationship) => ({
-            ...classes,
-            [`${toRelationshipClassName(relationship)}Relationship`]:
-              relationshipToRelationshipClass(
-                relationship,
-                findNode,
-                toRelationshipClassName
-              ),
-            [`${toRelationshipClassName(relationship)}Predicate`]:
-              relationshipToPredicateClass(relationship, findNode),
-          }),
-          {}
-        ),
     },
   };
 };
