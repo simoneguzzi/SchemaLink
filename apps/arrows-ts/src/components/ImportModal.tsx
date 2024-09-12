@@ -1,14 +1,33 @@
+import { Ontology } from '@neo4j-arrows/model';
 import React, { Component } from 'react';
 import { Button, Modal, Form, TextArea, Message } from 'semantic-ui-react';
 
-class ImportModal extends Component {
-  constructor(props) {
+interface ImportModalProps {
+  onCancel: () => void;
+  ontologies: Ontology[];
+  separation: number;
+  tryImport: (
+    text: string,
+    separation: number,
+    ontologies: Ontology[]
+  ) => { errorMessage?: string };
+}
+
+interface ImportModalState {
+  errorMessage?: string;
+  text: string;
+}
+
+class ImportModal extends Component<ImportModalProps, ImportModalState> {
+  constructor(props: ImportModalProps) {
     super(props);
     this.state = {
       text: '',
-      errorMessage: null,
+      errorMessage: undefined,
     };
   }
+
+  fileInputRef: HTMLInputElement | null = null;
 
   tryImport = () => {
     const result = this.props.tryImport(
@@ -24,10 +43,10 @@ class ImportModal extends Component {
   };
 
   fileChange = () => {
-    const files = this.fileInputRef.files;
-    if (files.length > 0) {
+    const files = this.fileInputRef?.files;
+    if (files?.length && files.length > 0) {
       const file = files[0];
-      file.text().then((text) => {
+      file.text().then((text: string) => {
         this.setState({ text });
       });
     }
@@ -66,7 +85,7 @@ class ImportModal extends Component {
                 content="Choose File"
                 labelPosition="left"
                 icon="file"
-                onClick={() => this.fileInputRef.click()}
+                onClick={() => this.fileInputRef?.click()}
               />
               <input
                 ref={(element) => (this.fileInputRef = element)}
