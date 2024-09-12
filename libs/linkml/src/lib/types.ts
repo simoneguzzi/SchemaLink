@@ -36,7 +36,7 @@ export type LinkML = {
 };
 
 export enum SpiresType {
-  LINKML = 'Pure LinkML',
+  LINKML = 'LinkML',
   RE = 'Spires RE',
   ER = 'Spires ER',
 }
