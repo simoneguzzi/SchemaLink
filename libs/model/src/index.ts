@@ -3,6 +3,7 @@ export * from './lib/Node';
 export * from './lib/Relationship';
 export * from './lib/Id';
 export * from './lib/Point';
+export * from './lib/Size';
 export * from './lib/Vector';
 export * from './lib/ViewTransformation';
 
@@ -15,6 +16,7 @@ export * from './lib/constants';
 export * from './lib/attachments';
 export * from './lib/themes';
 export * from './lib/properties';
+export * from './lib/values';
 
 export * from './lib/guides/AnyGuide';
 export * from './lib/guides/CircleGuide';
