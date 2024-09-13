@@ -15,7 +15,7 @@ import {
 import { adjustViewport } from './viewTransformation';
 import { activateRing, deactivateRing, tryDragRing } from './dragToCreate';
 import { selectItemsInMarquee, setMarquee } from './selectionMarquee';
-import { getEventHandlers } from '../selectors/layers';
+import { getEventHandlers } from '@neo4j-arrows/selectors';
 import {
   canvasPadding,
   computeCanvasSize,

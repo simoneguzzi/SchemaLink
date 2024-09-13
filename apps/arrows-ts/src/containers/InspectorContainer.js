@@ -25,7 +25,7 @@ import {
   loadOntologyExamplesFailure,
 } from '../actions/ontologies';
 import DetailInspector from '../components/DetailInspector';
-import { getSelectedNodes } from '../selectors/inspection';
+import { getSelectedNodes } from '@neo4j-arrows/selectors';
 import { getOntologies, getPresentGraph } from '../selectors';
 import { toggleSelection } from '../actions/selection';
 import { examples } from '@neo4j-arrows/ontology-search';

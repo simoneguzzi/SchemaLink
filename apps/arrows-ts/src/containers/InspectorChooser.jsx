@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { selectedRelationships } from '../model/selection';
 import InspectorContainer from './InspectorContainer';
 import GeneralInspectorContainer from './GeneralInspectorContainer';
-import { getSelectedNodes } from '../selectors/inspection';
+import { getSelectedNodes } from '@neo4j-arrows/selectors';
 import { getPresentGraph } from '../selectors';
 
 const mapStateToProps = (state) => {

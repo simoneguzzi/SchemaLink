@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { CaptionEditor } from './CaptionEditor';
 import { RelationshipTypeEditor } from './RelationshipTypeEditor';
 import { PropertiesEditor } from './PropertiesEditor';
-import { getStyleSelector } from '../selectors/style';
+import { getStyleSelector } from '@neo4j-arrows/model';
 import {
   ComponentStack,
   NodeCaptionFillNode,
