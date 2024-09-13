@@ -1,4 +1,4 @@
-export const windowResized = (width, height) => {
+export const windowResized = (width: number, height: number) => {
   return {
     type: 'WINDOW_RESIZED',
     width,
@@ -24,7 +24,7 @@ export const styleCustomize = () => {
   };
 };
 
-export const setBetaFeaturesEnabled = (enabled) => ({
+export const setBetaFeaturesEnabled = (enabled: boolean) => ({
   type: 'SET_BETA_FEATURES_ENABLED',
   enabled,
 });

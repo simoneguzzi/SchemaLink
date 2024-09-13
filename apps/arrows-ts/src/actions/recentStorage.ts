@@ -1,4 +1,8 @@
-export const updateRecentStorage = (mode, fileId, diagramName) => {
+export const updateRecentStorage = (
+  mode: string,
+  fileId: string,
+  diagramName: string
+) => {
   return {
     type: 'UPDATE_RECENT_STORAGE',
     mode,

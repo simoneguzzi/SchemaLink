@@ -1,13 +1,23 @@
+import { Dispatch } from 'redux';
 import { getPresentGraph } from '../selectors';
-import { nodeSelected, selectedNodeIds } from '@neo4j-arrows/model';
+import {
+  Entity,
+  Node,
+  nodeSelected,
+  selectedNodeIds,
+} from '@neo4j-arrows/model';
+import { ArrowsState } from '../reducers';
+import { KeyBinding } from '../interactions/Keybindings';
 
-export const activateEditing = (entity) => ({
+type Direction = 'LEFT' | 'RIGHT' | 'UP' | 'DOWN';
+
+export const activateEditing = (entity: Entity) => ({
   type: 'ACTIVATE_EDITING',
   editing: entity,
 });
 
 export const tryActivateEditing = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const selection = getState().selection;
     if (selection.editing === undefined && selection.entities.length > 0) {
       dispatch(
@@ -21,7 +31,7 @@ export const deactivateEditing = () => ({
   type: 'DEACTIVATE_EDITING',
 });
 
-export const toggleSelection = (entities, mode) => ({
+export const toggleSelection = (entities: Entity[], mode: string) => ({
   type: 'TOGGLE_SELECTION',
   entities: entities.map((entity) => ({
     entityType: entity.entityType,
@@ -31,15 +41,22 @@ export const toggleSelection = (entities, mode) => ({
 });
 
 export const selectAll = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const graph = getPresentGraph(getState());
     dispatch(
       toggleSelection(
         [
-          ...graph.nodes.map((node) => ({ id: node.id, entityType: 'node' })),
+          ...graph.nodes.map((node) => ({
+            id: node.id,
+            entityType: 'node',
+            properties: node.properties,
+            style: node.style,
+          })),
           ...graph.relationships.map((relationship) => ({
             id: relationship.id,
             entityType: 'relationship',
+            properties: relationship.properties,
+            style: relationship.style,
           })),
         ],
         'replace'
@@ -52,8 +69,8 @@ export const clearSelection = () => ({
   type: 'CLEAR_SELECTION',
 });
 
-export const jumpToNextNode = (direction, extraKeys) => {
-  return function (dispatch, getState) {
+export const jumpToNextNode = (direction: Direction, extraKeys: KeyBinding) => {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const graph = getPresentGraph(state);
 
@@ -62,7 +79,9 @@ export const jumpToNextNode = (direction, extraKeys) => {
     const currentNodeId = nodeIds[nodeIds.length - 1];
 
     if (currentNodeId) {
-      const currentNode = graph.nodes.find((node) => node.id === currentNodeId);
+      const currentNode = graph.nodes.find(
+        (node) => node.id === currentNodeId
+      ) as unknown as Node;
       const nextNode = getNextNode(currentNode, graph.nodes, direction);
 
       if (nextNode) {
@@ -87,7 +106,7 @@ export const jumpToNextNode = (direction, extraKeys) => {
   };
 };
 
-const getNextNode = (node, nodes, direction) => {
+const getNextNode = (node: Node, nodes: Node[], direction: Direction) => {
   const angles = {
     LEFT: -Math.PI,
     UP: -Math.PI / 2,
