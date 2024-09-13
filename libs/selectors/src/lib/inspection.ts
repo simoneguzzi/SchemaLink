@@ -7,14 +7,12 @@ import {
 
 export interface GetSelectedNodesArgs {
   graph: Graph;
-  gangs: any;
   selection: EntitySelection;
   applicationLayout: ApplicationLayout;
 }
 
 export const getSelectedNodes = ({
   graph,
-  gangs,
   selection,
   applicationLayout,
 }: GetSelectedNodesArgs) => {
@@ -25,7 +23,7 @@ export const getSelectedNodes = ({
       (resultNodes, layer) => {
         if (layer.selectorForInspection) {
           return resultNodes.concat(
-            layer.selectorForInspection({ graph, gangs, selection })
+            layer.selectorForInspection({ graph, selection })
           );
         } else {
           return resultNodes;

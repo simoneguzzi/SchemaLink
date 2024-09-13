@@ -95,10 +95,7 @@ export const storageMiddleware = (store) => (next) => (action) => {
   if (action.category === 'GRAPH' || historyActions.includes(action.type)) {
     switch (storage.mode) {
       case 'LOCAL_STORAGE':
-        if (
-          oldState.graph !== newState.graph ||
-          oldState.gangs !== newState.gangs
-        ) {
+        if (oldState.graph !== newState.graph) {
           if (oldState.storage.status !== 'PUTTING') {
             store.dispatch(puttingGraph());
           }
@@ -110,10 +107,7 @@ export const storageMiddleware = (store) => (next) => (action) => {
         break;
 
       case 'GOOGLE_DRIVE':
-        if (
-          oldState.graph !== newState.graph ||
-          oldState.gangs !== newState.gangs
-        ) {
+        if (oldState.graph !== newState.graph) {
           if (oldState.storage.status !== 'PUT') {
             store.dispatch(putGraph());
           }

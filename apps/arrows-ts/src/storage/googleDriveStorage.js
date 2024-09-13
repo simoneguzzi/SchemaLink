@@ -45,12 +45,10 @@ const getFileInfo = (fileId, metaOnly = false) => {
 
 export const constructGraphFromFile = (data) => {
   let graph;
-  let gangs = [];
 
   if (data) {
     if (data.graph) {
       graph = data.graph;
-      gangs = data.gangs || [];
     } else {
       graph = data;
     }
@@ -86,17 +84,6 @@ export const constructGraphFromFile = (data) => {
       style: relationship.style || {},
     }));
 
-  gangs.forEach((cluster) => {
-    cluster.position = new Point(cluster.position.x, cluster.position.y);
-    cluster.initialPosition = new Point(
-      cluster.initialPosition.x,
-      cluster.initialPosition.y
-    );
-    cluster.members.forEach((member) => {
-      member.position = new Point(member.position.x, member.position.y);
-    });
-  });
-
   return {
     graph: {
       ...graph,
@@ -104,6 +91,5 @@ export const constructGraphFromFile = (data) => {
       relationships,
       style: completeWithDefaults(graph.style),
     },
-    gangs,
   };
 };

@@ -41,24 +41,6 @@ const applicationLayout = (
         layers: [],
         betaFeaturesEnabled: action.enabled,
       };
-    case 'SET_PERSIST_CLUSTERS':
-      const clusterLayer = state.layers.find((layer) => layer.name === 'gangs');
-      if (clusterLayer && clusterLayer.persist !== action.enabled) {
-        const otherLayers = state.layers.filter(
-          (layer) => layer.name !== 'gangs'
-        );
-        return {
-          ...state,
-          layers: otherLayers.concat([
-            {
-              ...clusterLayer,
-              persist: action.enabled,
-            },
-          ]),
-        };
-      } else {
-        return state;
-      }
     default:
       return state;
   }

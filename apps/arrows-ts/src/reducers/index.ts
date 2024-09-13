@@ -11,7 +11,6 @@ import viewTransformation from './viewTransformation';
 import gestures from './gestures';
 import actionMemos from './actionMemos';
 import applicationDialogs from './applicationDialogs';
-import gangs from './gangs';
 import features from './features';
 import googleDrive from './googleDrive';
 import cachedImages from './cachedImages';
@@ -30,7 +29,6 @@ const arrowsApp = combineReducers({
   viewTransformation,
   actionMemos,
   applicationDialogs,
-  gangs,
   features,
   googleDrive,
   cachedImages,
