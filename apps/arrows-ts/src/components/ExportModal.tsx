@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Button, Tab } from 'semantic-ui-react';
+import { Modal, Button, Tab, TabProps } from 'semantic-ui-react';
 import ExportPngPanel from './ExportPngPanel';
 import ExportSvgPanel from './ExportSvgPanel';
 import ExportJsonPanel from './ExportJsonPanel';
@@ -11,9 +11,22 @@ import {
 import ExportUrlPanel from './ExportUrlPanel';
 import { fromGraph, SpiresType } from '@neo4j-arrows/linkml';
 import yaml from 'js-yaml';
+import { Graph } from '@neo4j-arrows/model';
+import { ImageInfo } from '@neo4j-arrows/graphics';
 
-class ExportModal extends Component {
-  constructor(props) {
+interface ExportModalProps {
+  cachedImages: Record<string, ImageInfo>;
+  diagramName: string;
+  graph: Graph;
+  onCancel: () => void;
+}
+
+interface ExportModalState {
+  activeIndex: number;
+}
+
+class ExportModal extends Component<ExportModalProps, ExportModalState> {
+  constructor(props: ExportModalProps) {
     super(props);
     this.state = {
       activeIndex: loadFavoriteExportTab() || 0,
@@ -24,8 +37,8 @@ class ExportModal extends Component {
     this.props.onCancel();
   };
 
-  handleTabChange = (e, { activeIndex }) => {
-    this.setState({ activeIndex });
+  handleTabChange = (e: React.MouseEvent, { activeIndex }: TabProps) => {
+    this.setState({ activeIndex: activeIndex as number });
     saveFavoriteExportTab(activeIndex);
   };
 

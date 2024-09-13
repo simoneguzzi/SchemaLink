@@ -3,7 +3,11 @@ import neo4j_logo_white from '../images/Neo4j-logo-white.svg';
 import { footerHeight } from '@neo4j-arrows/model';
 import { informationLinks } from './informationLinks';
 
-const Footer = (props) => {
+interface FooterProps {
+  onHelpClick: () => void;
+}
+
+const Footer = (props: FooterProps) => {
   const links = informationLinks.map((link) => {
     const [linkText, href] = link;
     return (
@@ -16,7 +20,7 @@ const Footer = (props) => {
           marginLeft: '20px',
         }}
       >
-        <a href={href} target="_blank">
+        <a href={href} target="_blank" rel="noreferrer">
           {linkText}
         </a>
       </p>
@@ -42,7 +46,11 @@ const Footer = (props) => {
         }}
       >
         Arrows.app powered by{' '}
-        <a href="https://neo4j.com/labs/arrows" target="_blank">
+        <a
+          href="https://neo4j.com/labs/arrows"
+          target="_blank"
+          rel="noreferrer"
+        >
           Neo4j Labs
         </a>
       </p>
@@ -67,7 +75,11 @@ const Footer = (props) => {
           lineHeight: '26px',
         }}
       >
-        <a href="https://neo4j.com?ref=arrows.app" target="_blank">
+        <a
+          href="https://neo4j.com?ref=arrows.app"
+          target="_blank"
+          rel="noreferrer"
+        >
           <img
             src={neo4j_logo_white}
             style={{ height: '20px', marginTop: '2px' }}

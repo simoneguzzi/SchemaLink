@@ -2,8 +2,10 @@ import { connect } from 'react-redux';
 import ExportModal from '../components/ExportModal';
 import { hideExportDialog } from '../actions/applicationDialogs';
 import { getPresentGraph } from '../selectors';
+import { Dispatch } from 'redux';
+import { ArrowsState } from '../reducers';
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: ArrowsState) => {
   return {
     graph: getPresentGraph(state),
     cachedImages: state.cachedImages,
@@ -11,7 +13,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     onCancel: () => {
       dispatch(hideExportDialog());

@@ -31,10 +31,10 @@ const getCachedImages = (state: ArrowsState) => state.cachedImages;
 
 export const getOntologies = (state: ArrowsState) => state.ontologies;
 
-export const getPresentGraph = (state: ArrowsState) =>
+export const getPresentGraph = (state: ArrowsState): Graph =>
   state.graph.present || state.graph;
 
-export const getGraph = (state: ArrowsState) => {
+export const getGraph = (state: ArrowsState): Graph => {
   const { layers } = state.applicationLayout || {};
 
   if (layers && layers.length > 0) {
