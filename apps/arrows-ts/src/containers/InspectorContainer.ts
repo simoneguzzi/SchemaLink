@@ -29,8 +29,17 @@ import { getSelectedNodes } from '@neo4j-arrows/selectors';
 import { getOntologies, getPresentGraph } from '../selectors';
 import { toggleSelection } from '../actions/selection';
 import { examples } from '@neo4j-arrows/ontology-search';
+import { Dispatch } from 'redux';
+import {
+  Cardinality,
+  Entity,
+  EntitySelection,
+  Ontology,
+  RelationshipType,
+} from '@neo4j-arrows/model';
+import { ArrowsState } from '../reducers';
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: ArrowsState) => {
   const graph = getPresentGraph(state);
   const ontologies = getOntologies(state);
   return {
@@ -43,39 +52,54 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    onSaveCaption: (selection, caption) => {
+    onSaveCaption: (selection: EntitySelection, caption: string) => {
       dispatch(setNodeCaption(selection, caption));
     },
     onConvertCaptionsToPropertyValues: () => {
       dispatch(convertCaptionsToPropertyValues());
     },
-    onSaveExamples: (selection, examples) => {
+    onSaveExamples: (selection: EntitySelection, examples: string) => {
       dispatch(setExamples(selection, examples));
     },
-    onSaveType: (selection, type) => {
+    onSaveType: (selection: EntitySelection, type: string) => {
       dispatch(setType(selection, type));
     },
-    onSaveRelationshipType: (selection, relationshipType) => {
+    onSaveRelationshipType: (
+      selection: EntitySelection,
+      relationshipType: RelationshipType
+    ) => {
       dispatch(setRelationshipType(selection, relationshipType));
     },
-    onMergeOnValues: (selection, propertyKey) => {
+    onMergeOnValues: (selection: EntitySelection, propertyKey: string) => {
       dispatch(mergeOnPropertyValues(selection, propertyKey));
     },
-    onSavePropertyKey: (selection, oldPropertyKey, newPropertyKey) => {
+    onSavePropertyKey: (
+      selection: EntitySelection,
+      oldPropertyKey: string,
+      newPropertyKey: string
+    ) => {
       dispatch(renameProperty(selection, oldPropertyKey, newPropertyKey));
     },
-    onSavePropertyValue: (selection, key, value) => {
+    onSavePropertyValue: (
+      selection: EntitySelection,
+      key: string,
+      value: string
+    ) => {
       dispatch(setProperty(selection, key, value));
     },
-    onSaveArrowsPropertyValue: (selection, key, value) => {
+    onSaveArrowsPropertyValue: (
+      selection: EntitySelection,
+      key: string,
+      value: string
+    ) => {
       dispatch(setArrowsProperty(selection, key, value));
     },
-    onDeleteProperty: (selection, key) => {
+    onDeleteProperty: (selection: EntitySelection, key: string) => {
       dispatch(removeProperty(selection, key));
     },
-    onDeleteArrowsProperty: (selection, key) => {
+    onDeleteArrowsProperty: (selection: EntitySelection, key: string) => {
       dispatch(removeArrowsProperty(selection, key));
     },
     onDuplicate: () => {
@@ -84,23 +108,23 @@ const mapDispatchToProps = (dispatch) => {
     onDelete: () => {
       dispatch(deleteSelection());
     },
-    reverseRelationships: (selection) => {
+    reverseRelationships: (selection: EntitySelection) => {
       dispatch(reverseRelationships(selection));
     },
-    mergeNodes: (selection) => {
+    mergeNodes: (selection: EntitySelection) => {
       dispatch(mergeNodes(selection));
     },
-    inlineRelationships: (selection) => {
+    inlineRelationships: (selection: EntitySelection) => {
       dispatch(inlineRelationships(selection));
     },
-    onSelect: (entities) => {
+    onSelect: (entities: Entity[]) => {
       dispatch(toggleSelection(entities, 'replace'));
     },
-    onSaveOntology: (selection, ontologies) => {
+    onSaveOntology: (selection: EntitySelection, ontologies: Ontology[]) => {
       dispatch(setOntology(selection, ontologies));
       dispatch(loadOntologyExamplesRequest());
       Promise.all(
-        ontologies.map((ontology) =>
+        ontologies.map((ontology: Ontology) =>
           examples(ontology).then((examples) => {
             return { ...ontology, examples };
           })
@@ -111,7 +135,10 @@ const mapDispatchToProps = (dispatch) => {
         })
         .catch((error) => dispatch(loadOntologyExamplesFailure()));
     },
-    onSaveCardinality: (selection, cardinality) => {
+    onSaveCardinality: (
+      selection: EntitySelection,
+      cardinality: Cardinality
+    ) => {
       dispatch(setCardinality(selection, cardinality));
     },
   };

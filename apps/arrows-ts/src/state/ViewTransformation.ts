@@ -1,28 +1,31 @@
-import { Vector } from '@neo4j-arrows/model';
+import { Point, Vector } from '@neo4j-arrows/model';
 
 export class ViewTransformation {
+  scale: number;
+  offset: Vector;
+
   constructor(scale = 1, offset = new Vector(0, 0)) {
     this.scale = scale;
     this.offset = offset;
   }
 
-  zoom(scale) {
+  zoom(scale: number) {
     return new ViewTransformation(scale, this.offset);
   }
 
-  scroll(vector) {
+  scroll(vector: Vector) {
     return new ViewTransformation(this.scale, this.offset.plus(vector));
   }
 
-  transform(point) {
+  transform(point: Point) {
     return point.scale(this.scale).translate(this.offset);
   }
 
-  inverse(point) {
+  inverse(point: Point) {
     return point.translate(this.offset.invert()).scale(1 / this.scale);
   }
 
-  adjust(scale, panX, panY) {
+  adjust(scale: number, panX: number, panY: number) {
     return new ViewTransformation(scale, new Vector(panX, panY));
   }
 

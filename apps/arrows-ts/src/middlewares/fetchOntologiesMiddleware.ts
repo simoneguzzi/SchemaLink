@@ -14,9 +14,10 @@ import {
   ontologiesCount,
 } from '@neo4j-arrows/ontology-search';
 import { getGraph } from '../selectors';
+import { ArrowsState } from '../reducers';
 
 export const fetchOntologiesMiddleware =
-  (store: Store) => (next: Dispatch) => (action: Action) => {
+  (store: Store<ArrowsState>) => (next: Dispatch) => (action: Action) => {
     const onFailedLoadOntologies = () => {
       store.dispatch(loadOntologiesFailure());
       store.dispatch(loadOntologyExamplesRequest());

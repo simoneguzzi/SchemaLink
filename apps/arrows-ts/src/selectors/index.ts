@@ -5,33 +5,40 @@ import {
   bundle,
   CanvasAdaptor,
   computeRelationshipAttachments,
+  ImageInfo,
+  ResolvedRelationship,
   RoutedRelationshipBundle,
   TransformationHandles,
   VisualGraph,
   VisualNode,
 } from '@neo4j-arrows/graphics';
-import ResolvedRelationship from '../graphics/ResolvedRelationship';
 import {
+  EntitySelection,
+  Graph,
+  Node,
   nodeEditing,
   nodeSelected,
+  Point,
   relationshipSelected,
   selectedNodeIds,
 } from '@neo4j-arrows/model';
+import { ArrowsState } from '../reducers';
 
-const getSelection = (state) => state.selection;
-const getMouse = (state) => state.mouse;
-const getViewTransformation = (state) => state.viewTransformation;
-const getCachedImages = (state) => state.cachedImages;
+const getSelection = (state: ArrowsState) => state.selection;
+const getMouse = (state: ArrowsState) => state.mouse;
+const getViewTransformation = (state: ArrowsState) => state.viewTransformation;
+const getCachedImages = (state: ArrowsState) => state.cachedImages;
 
-export const getOntologies = (state) => state.ontologies;
+export const getOntologies = (state: ArrowsState) => state.ontologies;
 
-export const getPresentGraph = (state) => state.graph.present || state.graph;
+export const getPresentGraph = (state: ArrowsState) =>
+  state.graph.present || state.graph;
 
-export const getGraph = (state) => {
+export const getGraph = (state: ArrowsState) => {
   const { layers } = state.applicationLayout || {};
 
   if (layers && layers.length > 0) {
-    return layers.reduce((resultState, layer) => {
+    return layers.reduce((resultState: any, layer: any) => {
       if (layer.selector) {
         return layer.selector({
           graph: resultState,
@@ -48,11 +55,16 @@ export const getGraph = (state) => {
 
 export const measureTextContext = (() => {
   const canvas = window.document.createElement('canvas');
-  return new CanvasAdaptor(canvas.getContext('2d'));
+  return new CanvasAdaptor(canvas.getContext('2d') as CanvasRenderingContext2D);
 })();
 
 export const getVisualNode = (() => {
-  const factory = (node, graph, selection, cachedImages) => {
+  const factory = (
+    node: Node,
+    graph: Graph,
+    selection: EntitySelection,
+    cachedImages: Record<string, ImageInfo>
+  ) => {
     return new VisualNode(
       node,
       graph,
@@ -67,11 +79,11 @@ export const getVisualNode = (() => {
 
 export const getVisualGraph = createSelector(
   [getGraph, getSelection, getCachedImages],
-  (graph, selection, cachedImages) => {
+  (graph: Graph, selection, cachedImages) => {
     const visualNodes = graph.nodes.reduce((nodeMap, node) => {
       nodeMap[node.id] = getVisualNode(node, graph, selection, cachedImages);
       return nodeMap;
-    }, {});
+    }, {} as Record<string, VisualNode>);
 
     const relationshipAttachments = computeRelationshipAttachments(
       graph,
@@ -86,8 +98,7 @@ export const getVisualGraph = createSelector(
           visualNodes[relationship.toId],
           relationshipAttachments.start[relationship.id],
           relationshipAttachments.end[relationship.id],
-          relationshipSelected(selection, relationship.id),
-          graph
+          relationshipSelected(selection, relationship.id)
         )
     );
     const relationshipBundles = bundle(resolvedRelationships).map((bundle) => {
@@ -100,12 +111,8 @@ export const getVisualGraph = createSelector(
       );
     });
 
-    return new VisualGraph(
-      graph,
-      visualNodes,
-      relationshipBundles,
-      measureTextContext
-    );
+    // return new VisualGraph(graph, visualNodes, relationshipBundles, measureTextContext) // ABK: why `measureTextContext` here?
+    return new VisualGraph(graph, visualNodes, relationshipBundles);
   }
 );
 
@@ -128,10 +135,16 @@ export const getTransformationHandles = createSelector(
   }
 );
 
+export interface NodePosition {
+  nodeId: string;
+  position: Point;
+  radius: number;
+}
+
 export const getPositionsOfSelectedNodes = createSelector(
   [getVisualGraph, getSelection],
   (visualGraph, selection) => {
-    const nodePositions = [];
+    const nodePositions: NodePosition[] = [];
     selectedNodeIds(selection).forEach((nodeId) => {
       const visualNode = visualGraph.nodes[nodeId];
       nodePositions.push({

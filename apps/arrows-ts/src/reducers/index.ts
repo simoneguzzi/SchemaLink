@@ -10,13 +10,35 @@ import applicationLayout from './applicationLayout';
 import viewTransformation from './viewTransformation';
 import gestures from './gestures';
 import actionMemos from './actionMemos';
-import applicationDialogs from './applicationDialogs';
+import applicationDialogs, {
+  ApplicationDialogsState,
+} from './applicationDialogs';
 import features from './features';
 import googleDrive from './googleDrive';
 import cachedImages from './cachedImages';
-import ontologies from './ontologies';
+import ontologies, { OntologyState } from './ontologies';
+import { ImageInfo } from '@neo4j-arrows/graphics';
 
-const arrowsApp = combineReducers({
+export type ArrowsState = {
+  recentStorage: any;
+  storage: any;
+  diagramName: string;
+  graph: any;
+  selection: any;
+  mouse: any;
+  gestures: any;
+  guides: any;
+  applicationLayout: any;
+  viewTransformation: any;
+  actionMemos: any;
+  applicationDialogs: ApplicationDialogsState;
+  features: any;
+  googleDrive: any;
+  cachedImages: Record<string, ImageInfo>;
+  ontologies: OntologyState;
+};
+
+const arrowsApp = combineReducers<ArrowsState>({
   recentStorage,
   storage,
   diagramName,

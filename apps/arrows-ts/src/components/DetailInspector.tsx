@@ -22,20 +22,82 @@ import {
   summarizeProperties,
   toVisualCardinality,
   RelationshipType,
+  Graph,
+  Node,
+  EntitySelection,
+  Ontology,
+  Entity,
 } from '@neo4j-arrows/model';
 import { renderCounters } from './EntityCounters';
 import PropertyTable from './PropertyTable';
 import StyleTable from './StyleTable';
 import { DetailToolbox } from './DetailToolbox';
 import { CaptionInspector } from './CaptionInspector';
+import { OntologyState } from '../reducers/ontologies';
+import { ImageInfo } from '@neo4j-arrows/graphics';
 
-export default class DetailInspector extends Component {
-  constructor(props) {
+interface DetailInspectorProps {
+  cachedImages: Record<string, ImageInfo>;
+  graph: Graph;
+  inlineRelationships: (selection: EntitySelection) => void;
+  inspectorVisible: boolean;
+  mergeNodes: (selection: EntitySelection) => void;
+  ontologies: OntologyState;
+  onSaveCaption: (selection: EntitySelection, caption: string) => void;
+  onSaveExamples: (selection: EntitySelection, examples: string) => void;
+  onConvertCaptionsToPropertyValues: () => void;
+  onSaveCardinality: (
+    selection: EntitySelection,
+    cardinality: Cardinality
+  ) => void;
+  onSaveRelationshipType: (
+    selection: EntitySelection,
+    relationshipType: RelationshipType
+  ) => void;
+  onSaveType: (selection: EntitySelection, type: string) => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onSelect: (entities: Entity[]) => void;
+  onMergeOnValues: (selection: EntitySelection, key: string) => void;
+  onSavePropertyKey: (
+    selection: EntitySelection,
+    oldKey: string,
+    newKey: string
+  ) => void;
+  onSavePropertyValue: (
+    selection: EntitySelection,
+    key: string,
+    value: string
+  ) => void;
+  onDeleteArrowsProperty: (selection: EntitySelection, key: string) => void;
+  onDeleteProperty: (selection: EntitySelection, key: string) => void;
+  onSaveOntology: (selection: EntitySelection, ontology: Ontology[]) => void;
+  onSaveArrowsPropertyValue: (
+    selection: EntitySelection,
+    key: string,
+    value: string
+  ) => void;
+  reverseRelationships: (selection: EntitySelection) => void;
+  selectedNodes: Node[];
+  selection: EntitySelection;
+}
+
+interface DetailInspectorState {
+  additionalExamplesOptions: string[];
+}
+
+export default class DetailInspector extends Component<
+  DetailInspectorProps,
+  DetailInspectorState
+> {
+  constructor(props: DetailInspectorProps) {
     super(props);
     this.state = { additionalExamplesOptions: [] };
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  captionInput: any;
+
+  shouldComponentUpdate(nextProps: DetailInspectorProps) {
     return (
       nextProps.inspectorVisible &&
       (graphsDifferInMoreThanPositions(this.props.graph, nextProps.graph) ||
@@ -45,14 +107,14 @@ export default class DetailInspector extends Component {
     );
   }
 
-  moveCursorToEnd(e) {
+  moveCursorToEnd(e: React.ChangeEvent<HTMLInputElement>) {
     const temp_value = e.target.value;
     e.target.value = '';
     e.target.value = temp_value;
     e.target.select();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: DetailInspectorProps) {
     if (this.props.inspectorVisible && !prevProps.inspectorVisible) {
       this.captionInput && this.captionInput.focus();
     }
@@ -70,17 +132,14 @@ export default class DetailInspector extends Component {
       onSaveType,
       onDuplicate,
       onDelete,
-    } = this.props;
-    const {
+      onDeleteArrowsProperty,
       reverseRelationships,
       inlineRelationships,
       mergeNodes,
       selectedNodes,
       onSelect,
-    } = this.props;
-    const { onConvertCaptionsToPropertyValues } = this.props;
-    const { onSaveArrowsPropertyValue, onDeleteArrowsProperty } = this.props;
-    const {
+      onConvertCaptionsToPropertyValues,
+      onSaveArrowsPropertyValue,
       onMergeOnValues,
       onSavePropertyKey,
       onSavePropertyValue,
@@ -103,13 +162,15 @@ export default class DetailInspector extends Component {
     );
 
     if (selectionIncludes.nodes && !selectionIncludes.relationships) {
-      const value = commonValue(selectedNodes.map((node) => node.caption));
+      const value = commonValue(
+        selectedNodes.map((node: Node) => node.caption)
+      );
 
       fields.push(
         <CaptionInspector
           key="caption"
           value={value}
-          onSaveCaption={(caption) => onSaveCaption(selection, caption)}
+          onSaveCaption={(caption: string) => onSaveCaption(selection, caption)}
           onConvertCaptionsToPropertyValues={onConvertCaptionsToPropertyValues}
         />
       );
@@ -143,9 +204,11 @@ export default class DetailInspector extends Component {
           <Dropdown
             value={commonRelationshipType || RelationshipType.ASSOCIATION}
             onChange={(e, { value }) =>
-              onSaveRelationshipType(selection, value)
+              onSaveRelationshipType(selection, value as RelationshipType)
             }
-            placeholder={commonType === undefined ? '<multiple types>' : null}
+            placeholder={
+              commonType === undefined ? '<multiple types>' : undefined
+            }
             selection
             options={Object.keys(RelationshipType).map((relationshipType) => {
               return {
@@ -173,16 +236,18 @@ export default class DetailInspector extends Component {
               placeholder={
                 commonCardinality === undefined
                   ? '<multiple cardinalities>'
-                  : null
+                  : undefined
               }
-              options={Object.keys(Cardinality).map((cardinality) => {
+              options={Object.values(Cardinality).map((cardinality) => {
                 return {
                   key: cardinality,
                   text: toVisualCardinality(cardinality),
                   value: cardinality,
                 };
               })}
-              onChange={(e, { value }) => onSaveCardinality(selection, value)}
+              onChange={(e, { value }) =>
+                onSaveCardinality(selection, value as Cardinality)
+              }
             />
           </Form.Field>
         );
@@ -198,16 +263,16 @@ export default class DetailInspector extends Component {
           key={`properties-${entities.map((entity) => entity.id).join(',')}`}
           properties={properties}
           propertySummary={propertySummary}
-          onMergeOnValues={(propertyKey) =>
+          onMergeOnValues={(propertyKey: string) =>
             onMergeOnValues(selection, propertyKey)
           }
-          onSavePropertyKey={(oldPropertyKey, newPropertyKey) =>
+          onSavePropertyKey={(oldPropertyKey: string, newPropertyKey: string) =>
             onSavePropertyKey(selection, oldPropertyKey, newPropertyKey)
           }
-          onSavePropertyValue={(propertyKey, propertyValue) =>
+          onSavePropertyValue={(propertyKey: string, propertyValue: string) =>
             onSavePropertyValue(selection, propertyKey, propertyValue)
           }
-          onDeleteProperty={(propertyKey) =>
+          onDeleteProperty={(propertyKey: string) =>
             onDeleteProperty(selection, propertyKey)
           }
         />
@@ -218,13 +283,13 @@ export default class DetailInspector extends Component {
         const { ontologies: storeOntologies, isFetching } = ontologies;
         const ontologiesExamples = entityOntologies
           ? entityOntologies
-              .flatMap((ontology) => {
+              .flatMap((ontology: Ontology) => {
                 const matching = storeOntologies.find(
                   ({ id }) => ontology.id === id
                 );
                 return matching ? matching.examples : [];
               })
-              .toSorted((a, b) => Math.random() - 0.5)
+              .toSorted((a: string, b: string) => Math.random() - 0.5)
               .toSpliced(10)
           : [];
         const examplesOptions = [
@@ -234,7 +299,7 @@ export default class DetailInspector extends Component {
         ].map((example, index) => {
           return { key: index, text: example, value: example };
         });
-        const onAddExample = (example) =>
+        const onAddExample = (example: string) =>
           this.setState({
             ...this.state,
             additionalExamplesOptions: [
@@ -251,8 +316,8 @@ export default class DetailInspector extends Component {
               clearable
               value={
                 entityOntologies
-                  ? entityOntologies.map((ontology) => ontology.id)
-                  : null
+                  ? entityOntologies.map((ontology: Ontology) => ontology.id)
+                  : undefined
               }
               multiple
               loading={isFetching}
@@ -269,7 +334,7 @@ export default class DetailInspector extends Component {
                 onSaveOntology(
                   selection,
                   storeOntologies.filter((ontology) =>
-                    value.includes(ontology.id)
+                    (value as string[]).includes(ontology.id)
                   )
                 )
               }
@@ -287,10 +352,12 @@ export default class DetailInspector extends Component {
               clearable
               options={examplesOptions}
               selection
-              onChange={(event, { value }) => onSaveExamples(selection, value)}
+              onChange={(event, { value }) =>
+                onSaveExamples(selection, value as string)
+              }
               placeholder={'Provide examples for this entity'}
               loading={isFetching}
-              onAddItem={(event, { value }) => onAddExample(value)}
+              onAddItem={(event, { value }) => onAddExample(value as string)}
             />
           </Form.Field>
         );
@@ -340,10 +407,10 @@ export default class DetailInspector extends Component {
             graphStyle={graph.style}
             possibleStyleAttributes={relevantKeys}
             cachedImages={this.props.cachedImages}
-            onSaveStyle={(styleKey, styleValue) =>
+            onSaveStyle={(styleKey: string, styleValue: string) =>
               onSaveArrowsPropertyValue(selection, styleKey, styleValue)
             }
-            onDeleteStyle={(styleKey) =>
+            onDeleteStyle={(styleKey: string) =>
               onDeleteArrowsProperty(selection, styleKey)
             }
           />
@@ -377,7 +444,7 @@ export default class DetailInspector extends Component {
             graph={graph}
             selection={selection}
             onReverseRelationships={reverseRelationships}
-            onInlineRelationships={(selection) => {
+            onInlineRelationships={(selection: EntitySelection) => {
               return inlineRelationships(selection);
             }}
             onMergeNodes={mergeNodes}

@@ -1,13 +1,22 @@
+import { Action } from 'redux';
 import { retrieveHelpDismissed } from '../actions/localStorage';
+
+export type ApplicationDialogsState = {
+  showExportDialog: boolean;
+  showSaveAsDialog: boolean;
+  showImportDialog: boolean;
+  showHelpDialog: boolean;
+};
+
 export default function applicationDialogs(
-  state = {
+  state: ApplicationDialogsState = {
     showExportDialog: false,
     showSaveAsDialog: false,
     showImportDialog: false,
     showHelpDialog: !retrieveHelpDismissed(),
   },
-  action
-) {
+  action: Action
+): ApplicationDialogsState {
   switch (action.type) {
     case 'SHOW_EXPORT_DIALOG':
       return {
