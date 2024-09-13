@@ -5,6 +5,7 @@ export * from './lib/circumferentialTextAlignment';
 export * from './lib/ComponentStack';
 export * from './lib/ElbowArrow';
 export * from './lib/Gestures';
+export * from './lib/graph/relationshipBundling';
 export * from './lib/NodeCaptionFillNode';
 export * from './lib/NodeCaptionOutsideNode';
 export * from './lib/ParallelArrow';
