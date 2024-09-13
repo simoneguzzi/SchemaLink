@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { renderVisuals } from '../graphics/visualsRenderer';
+import { renderVisuals } from '@neo4j-arrows/graphics';
 import {
   DELETE_SELECTION,
   DUPLICATE_SELECTION,

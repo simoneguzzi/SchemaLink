@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Input, Popup } from 'semantic-ui-react';
-import { shrinkImageUrl } from '../../graphics/utils/resizeImage';
+import { shrinkImageUrl } from '@neo4j-arrows/graphics';
 import { interpretClipboardData } from '../../actions/import';
 
 export default class extends Component {

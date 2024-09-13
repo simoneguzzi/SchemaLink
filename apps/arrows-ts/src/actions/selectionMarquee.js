@@ -1,5 +1,5 @@
 import { toggleSelection } from './selection';
-import BoundingBox from '../graphics/utils/BoundingBox';
+import { BoundingBox } from '@neo4j-arrows/graphics';
 import { getVisualGraph } from '../selectors/index';
 
 export const setMarquee = (from, to) => ({

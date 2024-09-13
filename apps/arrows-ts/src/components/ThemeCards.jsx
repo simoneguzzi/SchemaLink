@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { themes } from '@neo4j-arrows/model';
-import { renderSvgDom } from '../graphics/utils/offScreenSvgRenderer';
+import { renderSvgDom } from '@neo4j-arrows/graphics';
 import { constructGraphFromFile } from '../storage/googleDriveStorage';
 import convert from 'react-from-dom';
 

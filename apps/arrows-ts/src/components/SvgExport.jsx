@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Image, Segment, Label, Icon } from 'semantic-ui-react';
-import { renderSvgEncapsulated } from '../graphics/utils/offScreenSvgRenderer';
+import { renderSvgEncapsulated } from '@neo4j-arrows/graphics';
 
 class SvgExport extends Component {
   constructor(props) {

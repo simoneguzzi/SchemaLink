@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { cssAlignFromSvgAlign } from '../graphics/circumferentialTextAlignment';
+import { cssAlignFromSvgAlign } from '@neo4j-arrows/graphics';
 
 export class CaptionEditor extends Component {
   constructor(props) {

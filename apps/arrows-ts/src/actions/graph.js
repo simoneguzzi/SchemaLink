@@ -6,7 +6,6 @@ import {
 import { idsMatch, nextAvailableId, nextId } from '../model/Id';
 import { average, Point } from '../model/Point';
 import { Vector } from '../model/Vector';
-import { calculateBoundingBox } from '../graphics/utils/geometryUtils';
 import { getPresentGraph, getVisualGraph } from '../selectors';
 import {
   nodeSelected,
@@ -20,9 +19,9 @@ import {
 import {
   defaultNodeRadius,
   defaultRelationshipLength,
-} from '../graphics/constants';
-import BoundingBox from '../graphics/utils/BoundingBox';
-import { translate } from '@neo4j-arrows/model';
+  translate,
+} from '@neo4j-arrows/model';
+import { BoundingBox, calculateBoundingBox } from '@neo4j-arrows/graphics';
 import { lockHandleDragType } from './mouse';
 import { CircleGuide } from '../model/guides/CircleGuide';
 import { LineGuide } from '../model/guides/LineGuide';

@@ -5,7 +5,7 @@ import { Vector } from '../model/Vector';
 import { tryMoveNode } from '../actions/graph';
 import { canvasPadding, computeCanvasSize } from '../model/applicationLayout';
 import { getVisualGraph } from '../selectors/index';
-import BoundingBox from '../graphics/utils/BoundingBox';
+import { BoundingBox } from '@neo4j-arrows/graphics';
 
 const observedActionTypes = [
   'NEW_GOOGLE_DRIVE_DIAGRAM',

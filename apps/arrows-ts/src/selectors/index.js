@@ -1,20 +1,22 @@
 import { createSelector } from 'reselect';
 import memoize from 'memoizee';
-import { VisualNode } from '@neo4j-arrows/graphics';
+import {
+  BackgroundImage,
+  CanvasAdaptor,
+  computeRelationshipAttachments,
+  RoutedRelationshipBundle,
+  TransformationHandles,
+  VisualGraph,
+  VisualNode,
+} from '@neo4j-arrows/graphics';
 import ResolvedRelationship from '../graphics/ResolvedRelationship';
-import VisualGraph from '../graphics/VisualGraph';
-import TransformationHandles from '../graphics/TransformationHandles';
 import { bundle } from '../model/graph/relationshipBundling';
-import { RoutedRelationshipBundle } from '@neo4j-arrows/graphics';
-import CanvasAdaptor from '../graphics/utils/CanvasAdaptor';
 import {
   nodeEditing,
   nodeSelected,
   relationshipSelected,
   selectedNodeIds,
 } from '../model/selection';
-import { computeRelationshipAttachments } from '../graphics/relationshipAttachment';
-import { BackgroundImage } from '../graphics/BackgroundImage';
 
 const getSelection = (state) => state.selection;
 const getMouse = (state) => state.mouse;

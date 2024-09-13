@@ -1,5 +1,5 @@
 import { imageAttributes } from '@neo4j-arrows/model';
-import { containsCachedImage, loadImage } from '../graphics/utils/ImageCache';
+import { containsCachedImage, loadImage } from '@neo4j-arrows/graphics';
 import { imageEvent } from '../actions/cachedImages';
 import { getPresentGraph } from '../selectors';
 

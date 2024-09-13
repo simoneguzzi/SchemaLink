@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Image, Segment, Label, Icon } from 'semantic-ui-react';
-import { renderPngAtScaleFactor } from '../graphics/utils/offScreenCanvasRenderer';
+import { renderPngAtScaleFactor } from '@neo4j-arrows/graphics';
 
 class PngExport extends Component {
   render() {

@@ -17,7 +17,7 @@ import SaveAsContainer from '../containers/SaveAsContainer';
 import ImportContainer from '../containers/ImportContainer';
 import { handlePaste } from '../actions/import';
 import { handleCopy } from '../actions/export';
-import { linkToGoogleFontsCss } from '../graphics/utils/fontWrangling';
+import { linkToGoogleFontsCss } from '@neo4j-arrows/graphics';
 import { handleImportMessage } from '../reducers/storage';
 
 import './App.css';

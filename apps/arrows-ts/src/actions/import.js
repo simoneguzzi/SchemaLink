@@ -9,7 +9,7 @@ import { constructGraphFromFile } from '../storage/googleDriveStorage';
 import { translate } from '@neo4j-arrows/model';
 import { Vector } from '../model/Vector';
 import { hideImportDialog } from './applicationDialogs';
-import { shrinkImageUrl } from '../graphics/utils/resizeImage';
+import { shrinkImageUrl } from '@neo4j-arrows/graphics';
 import { Base64 } from 'js-base64';
 import { toGraph } from '@neo4j-arrows/linkml';
 import { load } from 'js-yaml';
