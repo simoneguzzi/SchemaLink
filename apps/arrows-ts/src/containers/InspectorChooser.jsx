@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { selectedRelationships } from '../model/selection';
+import { selectedRelationships } from '@neo4j-arrows/model';
 import InspectorContainer from './InspectorContainer';
 import GeneralInspectorContainer from './GeneralInspectorContainer';
 import { getSelectedNodes } from '@neo4j-arrows/selectors';

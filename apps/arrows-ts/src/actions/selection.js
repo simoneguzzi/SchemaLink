@@ -1,5 +1,5 @@
 import { getPresentGraph } from '../selectors';
-import { nodeSelected, selectedNodeIds } from '../model/selection';
+import { nodeSelected, selectedNodeIds } from '@neo4j-arrows/model';
 
 export const activateEditing = (entity) => ({
   type: 'ACTIVATE_EDITING',

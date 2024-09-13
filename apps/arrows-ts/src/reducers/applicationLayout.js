@@ -1,4 +1,4 @@
-import { Size } from '../model/Size';
+import { Size } from '@neo4j-arrows/model';
 
 const applicationLayout = (
   state = {

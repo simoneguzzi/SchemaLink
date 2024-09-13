@@ -9,7 +9,7 @@ import {
   jumpToNextNode,
   tryActivateEditing,
 } from '../actions/selection';
-import { computeCanvasSize } from '../model/applicationLayout';
+import { computeCanvasSize } from '@neo4j-arrows/model';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import { getBackgroundImage } from '../selectors';
 

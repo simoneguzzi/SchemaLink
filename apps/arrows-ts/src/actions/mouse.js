@@ -20,8 +20,8 @@ import {
   canvasPadding,
   computeCanvasSize,
   subtractPadding,
-} from '../model/applicationLayout';
-import { Vector } from '../model/Vector';
+  Vector,
+} from '@neo4j-arrows/model';
 
 const toGraphPosition = (state, canvasPosition) =>
   state.viewTransformation.inverse(canvasPosition);

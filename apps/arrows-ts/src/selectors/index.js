@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import memoize from 'memoizee';
 import {
   BackgroundImage,
+  bundle,
   CanvasAdaptor,
   computeRelationshipAttachments,
   RoutedRelationshipBundle,
@@ -10,13 +11,12 @@ import {
   VisualNode,
 } from '@neo4j-arrows/graphics';
 import ResolvedRelationship from '../graphics/ResolvedRelationship';
-import { bundle } from '../model/graph/relationshipBundling';
 import {
   nodeEditing,
   nodeSelected,
   relationshipSelected,
   selectedNodeIds,
-} from '../model/selection';
+} from '@neo4j-arrows/model';
 
 const getSelection = (state) => state.selection;
 const getMouse = (state) => state.mouse;

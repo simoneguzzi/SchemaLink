@@ -1,4 +1,4 @@
-import { idsMatch } from '../model/Id';
+import { idsMatch } from '@neo4j-arrows/model';
 
 const snapToTargetNode = (visualGraph, excludedNodeId, naturalPosition) => {
   const targetNode = visualGraph.closestNode(

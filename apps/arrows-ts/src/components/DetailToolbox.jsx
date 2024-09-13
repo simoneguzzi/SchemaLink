@@ -4,7 +4,7 @@ import {
   selectedNodeIds,
   selectedRelationshipIds,
   selectedRelationships,
-} from '../model/selection';
+} from '@neo4j-arrows/model';
 
 export const DetailToolbox = (props) => {
   const relationshipToolboxItems = (

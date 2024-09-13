@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { CaptionEditor } from './CaptionEditor';
 import { RelationshipTypeEditor } from './RelationshipTypeEditor';
 import { PropertiesEditor } from './PropertiesEditor';
-import { getStyleSelector } from '@neo4j-arrows/model';
+import { getStyleSelector, Vector } from '@neo4j-arrows/model';
 import {
   ComponentStack,
   NodeCaptionFillNode,
@@ -10,7 +10,6 @@ import {
   RelationshipType,
 } from '@neo4j-arrows/graphics';
 import { measureTextContext } from '../selectors';
-import { Vector } from '../model/Vector';
 import { LabelsEditor } from './LabelsEditor';
 
 const EditableComponentTypes = ['CAPTION', 'TYPE', 'LABELS', 'PROPERTIES'];

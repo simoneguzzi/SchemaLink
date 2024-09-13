@@ -1,7 +1,9 @@
 import {
   Cardinality,
   emptyGraph,
+  idsMatch,
   moveTo,
+  nodeSelected,
   nodeStyleAttributes,
   relationshipStyleAttributes,
   removeArrowsProperty,
@@ -13,11 +15,10 @@ import {
   setArrowsProperty,
   setProperty,
   setType,
+  relationshipSelected,
   RelationshipType,
 } from '@neo4j-arrows/model';
-import { idsMatch } from '../model/Id';
 import undoable, { groupByActionTypes } from 'redux-undo';
-import { nodeSelected, relationshipSelected } from '../model/selection';
 
 const graph = (state = emptyGraph(), action) => {
   switch (action.type) {

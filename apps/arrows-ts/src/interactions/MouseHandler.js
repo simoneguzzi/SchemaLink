@@ -1,4 +1,3 @@
-import { Point } from '../model/Point';
 import {
   doubleClick,
   endDrag,
@@ -7,7 +6,7 @@ import {
   mouseUp,
   wheel,
 } from '../actions/mouse';
-import { Vector } from '../model/Vector';
+import { Point, Vector } from '@neo4j-arrows/model';
 import { isMac } from './Keybindings';
 
 export default class MouseHandler {

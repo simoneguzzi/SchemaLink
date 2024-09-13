@@ -3,11 +3,9 @@ import {
   setArrowsProperty,
   setGraphStyle,
 } from './graph';
-import { Point } from '../model/Point';
 import { getOntologies, getPresentGraph } from '../selectors';
 import { constructGraphFromFile } from '../storage/googleDriveStorage';
-import { translate } from '@neo4j-arrows/model';
-import { Vector } from '../model/Vector';
+import { Point, translate, Vector } from '@neo4j-arrows/model';
 import { hideImportDialog } from './applicationDialogs';
 import { shrinkImageUrl } from '@neo4j-arrows/graphics';
 import { Base64 } from 'js-base64';

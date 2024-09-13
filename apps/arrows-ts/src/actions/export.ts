@@ -1,8 +1,9 @@
+import { Dispatch } from 'redux';
 import { getPresentGraph } from '../selectors';
-import { selectedNodes, selectedRelationships } from '../model/selection';
+import { selectedNodes, selectedRelationships } from '@neo4j-arrows/model';
 
 export const handleCopy = () => {
-  return function (dispatch: any, getState: () => any) {
+  return function (dispatch: Dispatch, getState: () => any) {
     const state = getState();
     const graph = getPresentGraph(state);
     const nodes = selectedNodes(graph, state.selection);

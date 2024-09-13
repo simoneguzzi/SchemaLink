@@ -1,4 +1,4 @@
-import { Guides } from '../model/guides/guides';
+import { Guides } from '@neo4j-arrows/model';
 
 export default function guides(state = new Guides(), action) {
   switch (action.type) {

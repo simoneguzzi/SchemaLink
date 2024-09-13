@@ -8,18 +8,16 @@ import {
   ButtonGroup,
   Button,
 } from 'semantic-ui-react';
-import { commonValue } from '../model/values';
-import {
-  selectedNodeIds,
-  selectedRelationshipIds,
-  selectedRelationships,
-} from '../model/selection';
 import {
   Cardinality,
   categoriesPresent,
   combineProperties,
   combineStyle,
+  commonValue,
   graphsDifferInMoreThanPositions,
+  selectedNodeIds,
+  selectedRelationshipIds,
+  selectedRelationships,
   styleAttributeGroups,
   summarizeProperties,
   toVisualCardinality,

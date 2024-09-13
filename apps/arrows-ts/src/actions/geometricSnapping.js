@@ -1,9 +1,11 @@
-import { Point } from '../model/Point';
-import { idsMatch } from '../model/Id';
-import { LineGuide } from '../model/guides/LineGuide';
-import { CircleGuide } from '../model/guides/CircleGuide';
-import { areParallel } from '../model/guides/intersections';
-import { byAscendingError } from '../model/guides/guides';
+import {
+  areParallel,
+  byAscendingError,
+  CircleGuide,
+  idsMatch,
+  LineGuide,
+  Point,
+} from '@neo4j-arrows/model';
 
 export const snapTolerance = 20;
 const grossTolerance = snapTolerance * 2;
