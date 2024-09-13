@@ -1,24 +1,32 @@
-import { Graph, Relationship } from '@neo4j-arrows/model';
+import { Id, Relationship } from '@neo4j-arrows/model';
 import { VisualNode } from './VisualNode';
 import { VisualAttachment } from './VisualAttachment';
 
 export class ResolvedRelationship {
-  // id(selection: EntitySelection, id: any): any {
-  //   throw new Error("Method not implemented.");
-  // }
-  get id() {
-    return this.relationship.id;
-  }
-  get type() {
-    return this.relationship.type;
-  }
+  id: Id;
+  relationship: Relationship;
+  from: VisualNode;
+  to: VisualNode;
+  startAttachment: VisualAttachment;
+  endAttachment: VisualAttachment;
+  selected: boolean;
+  type: string;
+
   constructor(
-    readonly relationship: Relationship,
-    readonly from: VisualNode,
-    readonly to: VisualNode,
-    readonly startAttachment: VisualAttachment,
-    readonly endAttachment: VisualAttachment,
-    readonly selected: boolean,
-    readonly graph: Graph
-  ) {}
+    relationship: Relationship,
+    from: VisualNode,
+    to: VisualNode,
+    startAttachment: VisualAttachment,
+    endAttachment: VisualAttachment,
+    selected: boolean
+  ) {
+    this.id = relationship.id;
+    this.relationship = relationship;
+    this.from = from;
+    this.to = to;
+    this.startAttachment = startAttachment;
+    this.endAttachment = endAttachment;
+    this.selected = selected;
+    this.type = relationship.type;
+  }
 }
