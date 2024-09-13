@@ -1,9 +1,24 @@
 import React, { Component } from 'react';
 import { Message, Icon, Checkbox } from 'semantic-ui-react';
 import PngExport from './PngExport';
+import { Graph } from '@neo4j-arrows/model';
+import { ImageInfo } from '@neo4j-arrows/graphics';
 
-class ExportPngPanel extends Component {
-  constructor(props) {
+interface ExportPngPanelProps {
+  graph: Graph;
+  cachedImages: Record<string, ImageInfo>;
+  diagramName: string;
+}
+
+interface ExportPngPanelState {
+  transparentBackground: boolean;
+}
+
+class ExportPngPanel extends Component<
+  ExportPngPanelProps,
+  ExportPngPanelState
+> {
+  constructor(props: ExportPngPanelProps) {
     super(props);
     this.state = {
       transparentBackground: true,

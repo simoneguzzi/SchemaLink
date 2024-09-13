@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 import { Image, Segment, Label, Icon } from 'semantic-ui-react';
-import { renderPngAtScaleFactor } from '@neo4j-arrows/graphics';
+import { ImageInfo, renderPngAtScaleFactor } from '@neo4j-arrows/graphics';
+import { Graph } from '@neo4j-arrows/model';
 
-class PngExport extends Component {
+interface PngExportProps {
+  graph: Graph;
+  cachedImages: Record<string, ImageInfo>;
+  diagramName: string;
+  pixelRatio: number;
+  transparentBackground: boolean;
+}
+
+class PngExport extends Component<PngExportProps> {
   render() {
     try {
       const { width, height, dataUrl } = renderPngAtScaleFactor(

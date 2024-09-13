@@ -1,14 +1,26 @@
 import React, { Component } from 'react';
 import { Image, Segment, Label, Icon } from 'semantic-ui-react';
-import { renderSvgEncapsulated } from '@neo4j-arrows/graphics';
+import { ImageInfo, renderSvgEncapsulated } from '@neo4j-arrows/graphics';
+import { Graph } from '@neo4j-arrows/model';
 
-class SvgExport extends Component {
-  constructor(props) {
+interface SvgExportProps {
+  graph: Graph;
+  cachedImages: Record<string, ImageInfo>;
+  diagramName: string;
+}
+
+interface SvgExportState {
+  width: number;
+  height: number;
+  dataUrl?: string;
+}
+
+class SvgExport extends Component<SvgExportProps, SvgExportState> {
+  constructor(props: SvgExportProps) {
     super(props);
     this.state = {
       width: 0,
       height: 0,
-      dataUrl: null,
     };
   }
 

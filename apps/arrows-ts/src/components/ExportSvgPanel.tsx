@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import { Message, Icon } from 'semantic-ui-react';
 import SvgExport from './SvgExport';
+import { Graph } from '@neo4j-arrows/model';
+import { ImageInfo } from '@neo4j-arrows/graphics';
 
-class ExportSvgPanel extends Component {
+interface ExportSvgPanelProps {
+  graph: Graph;
+  cachedImages: Record<string, ImageInfo>;
+  diagramName: string;
+}
+
+class ExportSvgPanel extends Component<ExportSvgPanelProps> {
   render() {
     return (
       <React.Fragment>

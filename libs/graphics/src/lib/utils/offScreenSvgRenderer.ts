@@ -35,7 +35,11 @@ export const renderSvgDom = (
 export const renderSvgEncapsulated = (
   graph: Graph,
   cachedImages: Record<string, ImageInfo>
-) => {
+): Promise<{
+  width: number;
+  height: number;
+  dataUrl: string;
+}> => {
   return new Promise((resolve, reject) => {
     const { visualGraph, boundingBox } = createVisualGraphAndBoundingBox(
       graph,
