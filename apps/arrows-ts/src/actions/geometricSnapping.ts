@@ -4,7 +4,6 @@ import {
   byAscendingError,
   CircleGuide,
   Graph,
-  Guides,
   Id,
   idsMatch,
   isLineGuide,
