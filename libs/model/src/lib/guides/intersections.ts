@@ -6,7 +6,21 @@ const isVertical = (line: { angle: number }) => {
   return Math.abs(Math.PI / 2 - Math.abs(line.angle)) < 0.01;
 };
 
-const intersectVertical = (vertical: LineGuide, other: LineGuide) => {
+type Intersection = {
+  possible: boolean;
+  intersection?: Point;
+};
+
+export function isPossible(
+  intersection: Intersection
+): intersection is { possible: true; intersection: Point } {
+  return intersection.possible && intersection.intersection !== undefined;
+}
+
+const intersectVertical = (
+  vertical: LineGuide,
+  other: LineGuide
+): Intersection => {
   return {
     possible: true,
     intersection: new Point(
@@ -21,7 +35,10 @@ export const areParallel = (lineA: LineGuide, lineB: LineGuide) => {
   return Math.abs((lineA.angle - lineB.angle) % Math.PI) < 0.01;
 };
 
-export const intersectLineAndLine = (lineA: LineGuide, lineB: LineGuide) => {
+export const intersectLineAndLine = (
+  lineA: LineGuide,
+  lineB: LineGuide
+): Intersection => {
   if (areParallel(lineA, lineB)) {
     return {
       possible: false,
@@ -52,7 +69,7 @@ const intersectVerticalLineAndCircle = (
   line: LineGuide,
   circle: CircleGuide,
   naturalPosition: Point
-) => {
+): Intersection => {
   const dx = Math.abs(circle.center.x - line.center.x);
   if (dx > circle.radius) {
     return {
@@ -76,7 +93,7 @@ export const intersectLineAndCircle = (
   line: LineGuide,
   circle: CircleGuide,
   naturalPosition: Point
-) => {
+): Intersection => {
   if (isVertical(line)) {
     return intersectVerticalLineAndCircle(line, circle, naturalPosition);
   }
@@ -114,7 +131,7 @@ export const intersectCircleAndCircle = (
   circleA: CircleGuide,
   circleB: CircleGuide,
   naturalPosition: Point
-) => {
+): Intersection => {
   const betweenCenters = circleA.center.vectorFrom(circleB.center);
   const d = betweenCenters.distance();
   if (

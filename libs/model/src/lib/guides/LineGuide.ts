@@ -5,6 +5,10 @@ import { byAscendingError } from './guides';
 import { AnyGuide } from './AnyGuide';
 import { CircleGuide } from './CircleGuide';
 
+export function isLineGuide(guide: AnyGuide): guide is LineGuide {
+  return guide.type === 'LINE';
+}
+
 export class LineGuide {
   center: Point;
   angle: number;
