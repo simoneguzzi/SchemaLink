@@ -17,10 +17,174 @@ import {
   setType,
   relationshipSelected,
   RelationshipType,
+  Graph,
+  Id,
+  Point,
+  EntitySelection,
+  Ontology,
+  Relationship,
+  Node,
 } from '@neo4j-arrows/model';
+import { Action } from 'redux';
 import undoable, { groupByActionTypes } from 'redux-undo';
 
-const graph = (state = emptyGraph(), action) => {
+interface CategoryGraph<T> extends Action<T> {
+  category: 'GRAPH';
+}
+
+interface DescriptionAction extends CategoryGraph<'SET_GRAPH_DESCRIPTION'> {
+  description: string;
+}
+
+interface CreateNodeAction extends CategoryGraph<'CREATE_NODE'> {
+  newNodeId: Id;
+  newNodePosition: Point;
+  caption: string;
+  style: any;
+}
+
+interface SelectionAction<T> extends CategoryGraph<T> {
+  selection: EntitySelection;
+}
+
+interface SetOntologiesAction extends SelectionAction<'SET_ONTOLOGY'> {
+  ontologies: Ontology[];
+}
+
+interface SetExamplesAction extends SelectionAction<'SET_EXAMPLES'> {
+  examples: string;
+}
+
+interface SetCardinalityAction extends SelectionAction<'SET_CARDINALITY'> {
+  cardinality: Cardinality;
+}
+
+interface SetNodeCaptionAction extends SelectionAction<'SET_NODE_CAPTION'> {
+  caption: string;
+}
+
+interface RenamePropertyAction extends SelectionAction<'RENAME_PROPERTY'> {
+  oldPropertyKey: string;
+  newPropertyKey: string;
+}
+
+interface AccessPropertyAction
+  extends SelectionAction<'REMOVE_PROPERTY' | 'REMOVE_ARROWS_PROPERTY'> {
+  key: string;
+}
+
+interface KeyValueAction<T> extends CategoryGraph<T> {
+  key: string;
+  value: string;
+}
+
+interface SetPropertyAction
+  extends SelectionAction<'SET_PROPERTY' | 'SET_ARROWS_PROPERTY'>,
+    KeyValueAction<'SET_PROPERTY' | 'SET_ARROWS_PROPERTY'> {}
+
+interface SetPropertyValuesAction extends CategoryGraph<'SET_PROPERTY_VALUES'> {
+  key: string;
+  nodePropertyValues: Record<string, string>;
+}
+
+interface ImportAction extends CategoryGraph<'IMPORT_NODES_AND_RELATIONSHIPS'> {
+  nodes: Node[];
+  relationships: Relationship[];
+}
+
+interface DeleteAction extends CategoryGraph<'DELETE_NODES_AND_RELATIONSHIPS'> {
+  nodeIdMap: Record<string, boolean>;
+  relationshipIdMap: Record<string, boolean>;
+}
+
+interface ConnectAction<T> extends CategoryGraph<T> {
+  sourceNodeIds: Id[];
+  targetNodeIds: Id[];
+  newRelationshipIds: Id[];
+}
+
+interface CreateAction extends ConnectAction<'CREATE_NODES_AND_RELATIONSHIPS'> {
+  targetNodePositions: Point[];
+  caption: string;
+  style: any;
+}
+
+interface SetTypeAction extends SelectionAction<'SET_TYPE'> {
+  typeValue: string;
+}
+
+interface SetRelationshipTypeAction
+  extends SelectionAction<'SET_RELATIONSHIP_TYPE'> {
+  relationshipType: RelationshipType;
+}
+
+interface MergeNodesAction extends CategoryGraph<'MERGE_NODES'> {
+  mergeSpecs: {
+    survivingNodeId: Id;
+    purgedNodeIds: Id[];
+    position: Point;
+  }[];
+}
+
+interface InlineRelationshipsAction
+  extends CategoryGraph<'INLINE_RELATIONSHIPS'> {
+  relationshipSpecs: {
+    removeNodeId: Id;
+    addPropertiesNodeId: Id;
+    properties: Record<string, string>;
+  }[];
+}
+
+interface GettingGraphAction extends CategoryGraph<'GETTING_GRAPH_SUCCEEDED'> {
+  storedGraph: Graph;
+}
+
+interface MoveNodesAction
+  extends CategoryGraph<'MOVE_NODES' | 'MOVE_NODES_END_DRAG'> {
+  nodePositions: { nodeId: Id; position: Point }[];
+}
+
+interface DuplicateNodesAndRelationshipsAction
+  extends CategoryGraph<'DUPLICATE_NODES_AND_RELATIONSHIPS'> {
+  nodeIdMap: Record<string, { oldNodeId: Id; position: Point }>;
+  relationshipIdMap: Record<
+    string,
+    { oldRelationshipId: Id; fromId: Id; toId: Id }
+  >;
+}
+
+interface StylesAction extends CategoryGraph<'SET_GRAPH_STYLES'> {
+  style: any;
+}
+
+type GraphAction =
+  | CategoryGraph<'NEW_GOOGLE_DRIVE_DIAGRAM' | 'NEW_LOCAL_STORAGE_DIAGRAM'>
+  | CreateNodeAction
+  | DescriptionAction
+  | SetOntologiesAction
+  | SetExamplesAction
+  | SetCardinalityAction
+  | SetNodeCaptionAction
+  | RenamePropertyAction
+  | AccessPropertyAction
+  | SetPropertyAction
+  | SetPropertyValuesAction
+  | ImportAction
+  | DeleteAction
+  | CreateAction
+  | ConnectAction<'CONNECT_NODES'>
+  | SelectionAction<'REVERSE_RELATIONSHIPS'>
+  | SetTypeAction
+  | SetRelationshipTypeAction
+  | MergeNodesAction
+  | KeyValueAction<'SET_GRAPH_STYLE'>
+  | InlineRelationshipsAction
+  | GettingGraphAction
+  | MoveNodesAction
+  | DuplicateNodesAndRelationshipsAction
+  | StylesAction;
+
+const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
   switch (action.type) {
     case 'NEW_GOOGLE_DRIVE_DIAGRAM':
     case 'NEW_LOCAL_STORAGE_DIAGRAM':
@@ -33,6 +197,7 @@ const graph = (state = emptyGraph(), action) => {
     case 'CREATE_NODE': {
       const newNodes = state.nodes.slice();
       newNodes.push({
+        entityType: 'node',
         id: action.newNodeId,
         position: action.newNodePosition,
         caption: action.caption,
@@ -46,10 +211,11 @@ const graph = (state = emptyGraph(), action) => {
     }
 
     case 'CREATE_NODES_AND_RELATIONSHIPS': {
-      const newNodes = [
+      const newNodes: Node[] = [
         ...state.nodes,
-        ...action.targetNodeIds.map((targetNodeId, i) => {
+        ...action.targetNodeIds.map((targetNodeId, i: number) => {
           return {
+            entityType: 'node',
             id: targetNodeId,
             position: action.targetNodePositions[i],
             caption: action.caption,
@@ -58,11 +224,12 @@ const graph = (state = emptyGraph(), action) => {
           };
         }),
       ];
-      const newRelationships = [
+      const newRelationships: Relationship[] = [
         ...state.relationships,
         ...action.newRelationshipIds.map((newRelationshipId, i) => {
           return {
             id: newRelationshipId,
+            entityType: 'relationship',
             type: '',
             relationshipType: RelationshipType.ASSOCIATION,
             style: {},
@@ -82,10 +249,11 @@ const graph = (state = emptyGraph(), action) => {
     }
 
     case 'CONNECT_NODES': {
-      const newRelationships = [
+      const newRelationships: Relationship[] = [
         ...state.relationships,
         ...action.newRelationshipIds.map((newRelationshipId, i) => {
           return {
+            entityType: 'relationship',
             id: newRelationshipId,
             type: '',
             relationshipType: RelationshipType.ASSOCIATION,
@@ -179,7 +347,7 @@ const graph = (state = emptyGraph(), action) => {
           nodeIdMap.set(purgedNodeId, spec.survivingNodeId);
         }
       }
-      const translateNodeId = (nodeId) =>
+      const translateNodeId = (nodeId: string) =>
         nodeIdMap.has(nodeId) ? nodeIdMap.get(nodeId) : nodeId;
       return {
         ...state,
@@ -201,7 +369,7 @@ const graph = (state = emptyGraph(), action) => {
                 );
                 mergedProperties = {
                   ...mergedProperties,
-                  ...purgedNode.properties,
+                  ...purgedNode?.properties,
                 };
               }
               return {
@@ -341,8 +509,8 @@ const graph = (state = emptyGraph(), action) => {
     }
 
     case 'MOVE_NODES':
-    case 'MOVE_NODES_END_DRAG':
-      const nodeIdToNode = {};
+    case 'MOVE_NODES_END_DRAG': {
+      const nodeIdToNode: Record<string, Node> = {};
       let clean = true;
       state.nodes.forEach((node) => {
         nodeIdToNode[node.id] = node;
@@ -350,7 +518,7 @@ const graph = (state = emptyGraph(), action) => {
       action.nodePositions.forEach((nodePosition) => {
         if (nodeIdToNode[nodePosition.nodeId]) {
           const oldNode = nodeIdToNode[nodePosition.nodeId];
-          clean &= oldNode.position.isEqual(nodePosition.position);
+          clean = clean && oldNode.position.isEqual(nodePosition.position);
           nodeIdToNode[nodePosition.nodeId] = moveTo(
             oldNode,
             nodePosition.position
@@ -364,6 +532,7 @@ const graph = (state = emptyGraph(), action) => {
         ...state,
         nodes: Object.values(nodeIdToNode),
       };
+    }
 
     case 'SET_TYPE':
       return {
@@ -389,13 +558,16 @@ const graph = (state = emptyGraph(), action) => {
       const newNodes = state.nodes.slice();
       Object.keys(action.nodeIdMap).forEach((newNodeId) => {
         const spec = action.nodeIdMap[newNodeId];
-        const oldNode = state.nodes.find((n) => idsMatch(n.id, spec.oldNodeId));
-        const newNode = {
+        const oldNode = state.nodes.find((n) =>
+          idsMatch(n.id, spec.oldNodeId)
+        ) as unknown as Node;
+        const newNode: Node = {
+          entityType: 'node',
           id: newNodeId,
           position: spec.position,
-          caption: oldNode.caption,
-          style: { ...oldNode.style },
-          properties: { ...oldNode.properties },
+          caption: oldNode?.caption,
+          style: { ...oldNode?.style },
+          properties: { ...oldNode?.properties },
         };
         newNodes.push(newNode);
       });
@@ -405,7 +577,7 @@ const graph = (state = emptyGraph(), action) => {
         const spec = action.relationshipIdMap[newRelationshipId];
         const oldRelationship = state.relationships.find((r) =>
           idsMatch(r.id, spec.oldRelationshipId)
-        );
+        ) as unknown as Relationship;
         const newRelationship = {
           ...oldRelationship,
           id: newRelationshipId,

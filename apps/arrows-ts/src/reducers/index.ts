@@ -9,7 +9,7 @@ import guides from './guides';
 import applicationLayout from './applicationLayout';
 import viewTransformation from './viewTransformation';
 import gestures from './gestures';
-import actionMemos from './actionMemos';
+import actionMemos, { ActionMemosState } from './actionMemos';
 import applicationDialogs, {
   ApplicationDialogsState,
 } from './applicationDialogs';
@@ -18,19 +18,21 @@ import googleDrive from './googleDrive';
 import cachedImages from './cachedImages';
 import ontologies, { OntologyState } from './ontologies';
 import { ImageInfo } from '@neo4j-arrows/graphics';
+import { Graph } from '@neo4j-arrows/model';
+import { StateWithHistory } from 'redux-undo';
 
 export type ArrowsState = {
   recentStorage: any;
   storage: any;
   diagramName: string;
-  graph: any;
+  graph: StateWithHistory<Graph>;
   selection: any;
   mouse: any;
   gestures: any;
   guides: any;
   applicationLayout: any;
   viewTransformation: any;
-  actionMemos: any;
+  actionMemos: ActionMemosState;
   applicationDialogs: ApplicationDialogsState;
   features: any;
   googleDrive: any;
