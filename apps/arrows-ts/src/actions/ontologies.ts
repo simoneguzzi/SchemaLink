@@ -1,17 +1,5 @@
 import { Ontology } from '@neo4j-arrows/model';
-import { Action } from 'redux';
-
-export interface OntologiesAction
-  extends Action<
-    | 'LOAD_ONTOLOGIES_REQUEST'
-    | 'LOAD_ONTOLOGIES_SUCCESS'
-    | 'LOAD_ONTOLOGIES_FAILURE'
-    | 'LOAD_ONTOLOGY_EXAMPLES_REQUEST'
-    | 'LOAD_ONTOLOGY_EXAMPLES_SUCCESS'
-    | 'LOAD_ONTOLOGY_EXAMPLES_FAILURE'
-  > {
-  ontologies?: Ontology[];
-}
+import { OntologiesAction } from '../reducers/ontologies';
 
 export const loadOntologiesRequest = (): OntologiesAction => ({
   type: 'LOAD_ONTOLOGIES_REQUEST',
