@@ -33,7 +33,6 @@ export const ontologies = async (size = 20): Promise<Ontology[]> => {
 export const examples = async (ontology: Ontology): Promise<string[]> => {
   return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/terms`).then((response) =>
     response.json().then((data: OntologyJson) => {
-      console.log(data._embedded.terms);
       return data._embedded.terms.map(({ label }) => label);
     })
   );
