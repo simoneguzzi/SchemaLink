@@ -13,12 +13,12 @@ import actionMemos, { ActionMemosState } from './actionMemos';
 import applicationDialogs, {
   ApplicationDialogsState,
 } from './applicationDialogs';
-import features from './features';
+import features, { FeaturesState } from './features';
 import googleDrive from './googleDrive';
 import cachedImages from './cachedImages';
 import ontologies, { OntologyState } from './ontologies';
 import { ImageInfo } from '@neo4j-arrows/graphics';
-import { Graph } from '@neo4j-arrows/model';
+import { Graph, Guides, ViewTransformation } from '@neo4j-arrows/model';
 import { StateWithHistory } from 'redux-undo';
 
 export type ArrowsState = {
@@ -29,12 +29,12 @@ export type ArrowsState = {
   selection: any;
   mouse: any;
   gestures: any;
-  guides: any;
+  guides: Guides;
   applicationLayout: any;
-  viewTransformation: any;
+  viewTransformation: ViewTransformation;
   actionMemos: ActionMemosState;
   applicationDialogs: ApplicationDialogsState;
-  features: any;
+  features: FeaturesState;
   googleDrive: any;
   cachedImages: Record<string, ImageInfo>;
   ontologies: OntologyState;

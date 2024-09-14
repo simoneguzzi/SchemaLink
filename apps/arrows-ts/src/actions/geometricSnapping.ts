@@ -1,40 +1,55 @@
-import { Point } from '../model-old/Point';
-import { idsMatch } from '../model-old/Id';
-import { LineGuide } from '../model-old/guides/LineGuide';
-import { CircleGuide } from '../model-old/guides/CircleGuide';
-import { areParallel } from '../model-old/guides/intersections';
-import { byAscendingError } from '../model-old/guides/guides';
+import {
+  AnyGuide,
+  areParallel,
+  byAscendingError,
+  CircleGuide,
+  Graph,
+  Guides,
+  Id,
+  idsMatch,
+  isLineGuide,
+  isPossible,
+  LineGuide,
+  Node,
+  Point,
+} from '@neo4j-arrows/model';
 
 export const snapTolerance = 20;
 const grossTolerance = snapTolerance * 2;
 export const angleTolerance = Math.PI / 4;
 
 export const snapToNeighbourDistancesAndAngles = (
-  graph,
-  snappingNodeId,
-  naturalPosition,
-  otherSelectedNodes
+  graph: Graph,
+  snappingNodeId: Id,
+  naturalPosition: Point,
+  otherSelectedNodes: Id[]
 ) => {
-  const neighbours = [];
+  const neighbours: Node[] = [];
   graph.relationships.forEach((relationship) => {
     if (
       idsMatch(relationship.fromId, snappingNodeId) &&
       !otherSelectedNodes.includes(relationship.toId)
     ) {
-      neighbours.push(
-        graph.nodes.find((node) => idsMatch(node.id, relationship.toId))
+      const neighbour = graph.nodes.find((node) =>
+        idsMatch(node.id, relationship.toId)
       );
+      if (neighbour) {
+        neighbours.push(neighbour);
+      }
     } else if (
       idsMatch(relationship.toId, snappingNodeId) &&
       !otherSelectedNodes.includes(relationship.fromId)
     ) {
-      neighbours.push(
-        graph.nodes.find((node) => idsMatch(node.id, relationship.fromId))
+      const neighbour = graph.nodes.find((node) =>
+        idsMatch(node.id, relationship.fromId)
       );
+      if (neighbour) {
+        neighbours.push(neighbour);
+      }
     }
   });
 
-  const includeNode = (nodeId) =>
+  const includeNode = (nodeId: Id) =>
     !idsMatch(nodeId, snappingNodeId) && !otherSelectedNodes.includes(nodeId);
 
   return snapToDistancesAndAngles(
@@ -46,28 +61,35 @@ export const snapToNeighbourDistancesAndAngles = (
 };
 
 export const snapToDistancesAndAngles = (
-  graph,
-  neighbours,
-  includeNode,
-  naturalPosition
+  graph: Graph,
+  neighbours: Node[],
+  includeNode: (nodeId: Id) => boolean,
+  naturalPosition: Point
 ) => {
-  const isNeighbour = (nodeId) =>
+  const isNeighbour = (nodeId: Id) =>
     !!neighbours.find((neighbour) => neighbour.id === nodeId);
   let snappedPosition = naturalPosition;
 
-  let possibleGuides = [];
+  const possibleGuides: AnyGuide[] = [];
 
-  const neighbourRelationships = {};
-  const collectRelationship = (neighbourNodeId, nonNeighbourNodeId) => {
-    const pair = {
-      neighbour: graph.nodes.find((node) => idsMatch(node.id, neighbourNodeId)),
-      nonNeighbour: graph.nodes.find((node) =>
-        idsMatch(node.id, nonNeighbourNodeId)
-      ),
-    };
-    const pairs = neighbourRelationships[pair.neighbour.id] || [];
-    pairs.push(pair);
-    neighbourRelationships[pair.neighbour.id] = pairs;
+  type Pair = {
+    neighbour: Node;
+    nonNeighbour: Node;
+  };
+  const neighbourRelationships: Record<string, Pair[]> = {};
+  const collectRelationship = (neighbourNodeId: Id, nonNeighbourNodeId: Id) => {
+    const neighbour = graph.nodes.find((node) =>
+      idsMatch(node.id, neighbourNodeId)
+    );
+    const nonNeighbour = graph.nodes.find((node) =>
+      idsMatch(node.id, nonNeighbourNodeId)
+    );
+
+    if (neighbour && nonNeighbour) {
+      const pairs = neighbourRelationships[neighbour.id] || [];
+      pairs.push({ neighbour, nonNeighbour });
+      neighbourRelationships[neighbour.id] = pairs;
+    }
   };
 
   graph.relationships.forEach((relationship) => {
@@ -86,15 +108,15 @@ export const snapToDistancesAndAngles = (
     );
 
   for (const neighbourA of neighbours) {
-    const relationshipDistances = [];
+    const relationshipDistances: number[] = [];
 
     for (const relationship of neighbourRelationships[neighbourA.id] || []) {
       const relationshipVector = relationship.nonNeighbour.position.vectorFrom(
         relationship.neighbour.position
       );
       const distance = relationshipVector.distance();
-      const similarDistance = relationshipDistances.includes(
-        (entry) => Math.abs(entry - distance) < 0.01
+      const similarDistance = relationshipDistances.some(
+        (entry: number) => Math.abs(entry - distance) < 0.01
       );
       if (!similarDistance) {
         relationshipDistances.push(distance);
@@ -171,9 +193,9 @@ export const snapToDistancesAndAngles = (
     }
   }
 
-  const columns = new Set();
-  const rows = new Set();
-  graph.nodes.forEach((node) => {
+  const columns = new Set<number>();
+  const rows = new Set<number>();
+  graph.nodes.forEach((node: Node) => {
     if (includeNode(node.id)) {
       if (Math.abs(naturalPosition.x - node.position.x) < grossTolerance) {
         columns.add(node.position.x);
@@ -211,10 +233,10 @@ export const snapToDistancesAndAngles = (
   const candidateGuides = [...possibleGuides];
   candidateGuides.sort(byAscendingError);
 
-  const guidelines = [];
+  const guidelines: AnyGuide[] = [];
 
   while (guidelines.length === 0 && candidateGuides.length > 0) {
-    const candidateGuide = candidateGuides.shift();
+    const candidateGuide = candidateGuides.shift() as AnyGuide;
     if (candidateGuide.error < snapTolerance) {
       guidelines.push(candidateGuide);
       snappedPosition = candidateGuide.snap(naturalPosition);
@@ -222,9 +244,9 @@ export const snapToDistancesAndAngles = (
   }
 
   while (guidelines.length === 1 && candidateGuides.length > 0) {
-    const candidateGuide = candidateGuides.shift();
+    const candidateGuide = candidateGuides.shift() as AnyGuide;
     const combination = guidelines[0].combine(candidateGuide, naturalPosition);
-    if (combination.possible) {
+    if (isPossible(combination)) {
       const error = combination.intersection
         .vectorFrom(naturalPosition)
         .distance();
@@ -235,13 +257,13 @@ export const snapToDistancesAndAngles = (
     }
   }
 
-  const lineGuides = guidelines.filter((guide) => guide.type === 'LINE');
+  const lineGuides = guidelines.filter(isLineGuide);
   for (const candidateGuide of possibleGuides) {
     if (
       !guidelines.includes(candidateGuide) &&
       candidateGuide.calculateError(snappedPosition) < 0.01
     ) {
-      if (candidateGuide.type === 'LINE') {
+      if (isLineGuide(candidateGuide)) {
         if (lineGuides.every((guide) => !areParallel(guide, candidateGuide))) {
           lineGuides.push(candidateGuide);
           guidelines.push(candidateGuide);
