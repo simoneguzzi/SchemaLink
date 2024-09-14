@@ -4,7 +4,7 @@ import storage from './storage';
 import diagramName from './diagramName';
 import graph from './graph';
 import selection from './selection';
-import mouse from './mouse';
+import mouse, { MouseState } from './mouse';
 import guides from './guides';
 import applicationLayout, { ApplicationLayoutState } from './applicationLayout';
 import viewTransformation from './viewTransformation';
@@ -27,7 +27,7 @@ export type ArrowsState = {
   diagramName: string;
   graph: StateWithHistory<Graph>;
   selection: any;
-  mouse: any;
+  mouse: MouseState;
   gestures: GesturesState;
   guides: Guides;
   applicationLayout: ApplicationLayoutState;

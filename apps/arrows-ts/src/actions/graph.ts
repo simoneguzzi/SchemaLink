@@ -3,7 +3,7 @@ import {
   snapTolerance,
   snapToNeighbourDistancesAndAngles,
 } from './geometricSnapping';
-import { getPresentGraph, getVisualGraph } from '../selectors';
+import { getPresentGraph, getVisualGraph, NodePosition } from '../selectors';
 import {
   average,
   CircleGuide,
@@ -25,53 +25,74 @@ import {
   selectedRelationships,
   translate,
   Vector,
+  Id,
+  Graph,
+  Relationship,
+  Node,
+  EntitySelection,
+  RelationshipType,
+  Cardinality,
+  Ontology,
+  ViewTransformation,
+  Coordinate,
+  Component,
 } from '@neo4j-arrows/model';
 import { BoundingBox, calculateBoundingBox } from '@neo4j-arrows/graphics';
 import { lockHandleDragType } from './mouse';
+import { Dispatch } from 'redux';
+import { ArrowsState } from '../reducers';
+import { GraphAction, MergeSpecs } from '../reducers/graph';
+import { ActionMemosState } from '../reducers/actionMemos';
+import { MouseState } from '../reducers/mouse';
 
-export const createNode = () => (dispatch, getState) => {
-  let newNodePosition = new Point(0, 0);
-  const graph = getPresentGraph(getState());
-  if (graph.nodes.length > 0) {
-    const ranges = ['x', 'y']
-      .map((dimension) => {
-        const coordinates = graph.nodes.map((node) => node.position[dimension]);
-        const min = Math.min(...coordinates);
-        const max = Math.max(...coordinates);
-        const spread = max - min;
-        return {
-          dimension,
-          min,
-          max,
-          spread,
-        };
-      })
-      .sort((a, b) => b.spread - a.spread);
-    newNodePosition[ranges[0].dimension] = ranges[0].min;
-    newNodePosition[ranges[1].dimension] =
-      ranges[1].max + defaultRelationshipLength + defaultNodeRadius * 2;
-  }
+export const createNode =
+  () => (dispatch: Dispatch, getState: () => ArrowsState) => {
+    let newNodePosition = new Point(0, 0);
+    const graph = getPresentGraph(getState());
+    const dimensions: Array<keyof Coordinate> = ['x', 'y'];
+    if (graph.nodes.length > 0) {
+      const ranges = dimensions
+        .map((dimension) => {
+          const coordinates = graph.nodes.map(
+            (node) => node.position[dimension]
+          );
+          const min = Math.min(...coordinates);
+          const max = Math.max(...coordinates);
+          const spread = max - min;
+          return {
+            min,
+            max,
+            spread,
+          };
+        })
+        .sort((a, b) => b.spread - a.spread);
+      newNodePosition = new Point(
+        ranges[0].min,
+        ranges[1].max + defaultRelationshipLength + defaultNodeRadius * 2
+      );
+    }
 
-  dispatch({
-    category: 'GRAPH',
-    type: 'CREATE_NODE',
-    newNodeId: nextAvailableId(getPresentGraph(getState()).nodes),
-    newNodePosition,
-    caption: '',
-    style: {},
-  });
-};
+    dispatch({
+      category: 'GRAPH',
+      type: 'CREATE_NODE',
+      newNodeId: nextAvailableId(getPresentGraph(getState()).nodes),
+      newNodePosition,
+      caption: '',
+      style: {},
+    });
+  };
 
 export const createNodesAndRelationships =
-  (sourceNodeIds, targetNodeDisplacement) => (dispatch, getState) => {
+  (sourceNodeIds: Id[], targetNodeDisplacement: Vector) =>
+  (dispatch: Dispatch, getState: () => ArrowsState) => {
     const graph = getPresentGraph(getState());
 
-    const newRelationshipIds = [];
-    const targetNodeIds = [];
+    const newRelationshipIds: Id[] = [];
+    const targetNodeIds: Id[] = [];
     let newRelationshipId = nextAvailableId(graph.relationships);
     let targetNodeId = nextAvailableId(graph.nodes);
 
-    const targetNodePositions = [];
+    const targetNodePositions: Point[] = [];
 
     sourceNodeIds.forEach((sourceNodeId) => {
       newRelationshipIds.push(newRelationshipId);
@@ -82,10 +103,12 @@ export const createNodesAndRelationships =
 
       const sourceNodePosition = graph.nodes.find(
         (node) => node.id === sourceNodeId
-      ).position;
-      targetNodePositions.push(
-        sourceNodePosition.translate(targetNodeDisplacement)
-      );
+      )?.position;
+      if (sourceNodePosition) {
+        targetNodePositions.push(
+          sourceNodePosition.translate(targetNodeDisplacement)
+        );
+      }
     });
 
     dispatch({
@@ -101,9 +124,10 @@ export const createNodesAndRelationships =
   };
 
 export const connectNodes =
-  (sourceNodeIds, targetNodeIds) => (dispatch, getState) => {
+  (sourceNodeIds: Id[], targetNodeIds: Id[]) =>
+  (dispatch: Dispatch, getState: () => ArrowsState) => {
     const graph = getPresentGraph(getState());
-    const newRelationshipIds = [];
+    const newRelationshipIds: Id[] = [];
     let newRelationshipId = nextAvailableId(graph.relationships);
     sourceNodeIds.forEach(() => {
       newRelationshipIds.push(newRelationshipId);
@@ -125,15 +149,40 @@ export const tryMoveHandle = ({
   initialNodePositions,
   initialMousePosition,
   newMousePosition,
+}: {
+  dragType: string;
+  corner: { x: string; y: string };
+  initialNodePositions: NodePosition[];
+  initialMousePosition: Point;
+  newMousePosition: Point;
 }) => {
-  function applyScale(vector, viewTransformation, dispatch, mouse) {
+  function applyScale(
+    vector: Vector,
+    viewTransformation: ViewTransformation,
+    dispatch: Dispatch,
+    mouse: MouseState
+  ) {
     const maxDiameter =
       Math.max(...initialNodePositions.map((entry) => entry.radius)) * 2;
 
-    const dimensions = ['x', 'y'];
-    const ranges = {};
+    const dimensions: Array<{
+      coordinate: keyof Coordinate;
+      component: keyof Component;
+    }> = [
+      { coordinate: 'x', component: 'dx' },
+      { coordinate: 'y', component: 'dy' },
+    ];
 
-    const choose = (mode, min, max, other) => {
+    const ranges: {
+      [key: string]: {
+        min: number;
+        max: number;
+        oldSpread: number;
+        newSpread: number;
+      };
+    } = {};
+
+    const choose = (mode: string, min: number, max: number, other: number) => {
       switch (mode) {
         case 'min':
           return min;
@@ -144,17 +193,17 @@ export const tryMoveHandle = ({
       }
     };
 
-    dimensions.forEach((dimension) => {
+    dimensions.forEach(({ coordinate, component }) => {
       const coordinates = initialNodePositions.map(
-        (entry) => entry.position[dimension]
+        (entry) => entry.position[coordinate]
       );
       const min = Math.min(...coordinates);
       const max = Math.max(...coordinates);
       const oldSpread = max - min;
       let newSpread = choose(
-        corner[dimension],
-        oldSpread - vector['d' + dimension],
-        oldSpread + vector['d' + dimension],
+        corner[coordinate],
+        oldSpread - vector[component],
+        oldSpread + vector[component],
         oldSpread
       );
       if (newSpread < 0) {
@@ -164,7 +213,7 @@ export const tryMoveHandle = ({
           newSpread = 0;
         }
       }
-      ranges[dimension] = {
+      ranges[coordinate] = {
         min,
         max,
         oldSpread,
@@ -174,26 +223,26 @@ export const tryMoveHandle = ({
     const snapRatios = [-1, 1];
     if (corner.x !== 'mid' && corner.y !== 'mid') {
       let ratio = Math.max(
-        ...dimensions.map((dimension) => {
-          const range = ranges[dimension];
+        ...dimensions.map(({ coordinate }) => {
+          const range = ranges[coordinate];
           return range.newSpread / range.oldSpread;
         })
       );
-      let smallestSpread = Math.min(
-        ...dimensions.map((dimension) => ranges[dimension].oldSpread)
+      const smallestSpread = Math.min(
+        ...dimensions.map(({ coordinate }) => ranges[coordinate].oldSpread)
       );
       snapRatios.forEach((snapRatio) => {
         if (Math.abs(ratio - snapRatio) * smallestSpread < snapTolerance) {
           ratio = snapRatio;
         }
       });
-      dimensions.forEach((dimension) => {
-        const range = ranges[dimension];
+      dimensions.forEach(({ coordinate }) => {
+        const range = ranges[coordinate];
         range.newSpread = range.oldSpread * ratio;
       });
     } else {
-      dimensions.forEach((dimension) => {
-        const range = ranges[dimension];
+      dimensions.forEach(({ coordinate }) => {
+        const range = ranges[coordinate];
         let ratio = range.newSpread / range.oldSpread;
         snapRatios.forEach((snapRatio) => {
           if (Math.abs(ratio - snapRatio) * range.oldSpread < snapTolerance) {
@@ -204,7 +253,7 @@ export const tryMoveHandle = ({
       });
     }
 
-    const coordinate = (position, dimension) => {
+    const coordinate = (position: Point, dimension: keyof Coordinate) => {
       const original = position[dimension];
       const range = ranges[dimension];
       switch (corner[dimension]) {
@@ -223,13 +272,14 @@ export const tryMoveHandle = ({
       }
     };
 
-    const nodePositions = initialNodePositions.map((entry) => {
+    const nodePositions: NodePosition[] = initialNodePositions.map((entry) => {
       return {
         nodeId: entry.nodeId,
         position: new Point(
           coordinate(entry.position, 'x'),
           coordinate(entry.position, 'y')
         ),
+        radius: entry.radius,
       };
     });
 
@@ -237,13 +287,13 @@ export const tryMoveHandle = ({
     guidelines.push(
       new HandleGuide(viewTransformation.inverse(newMousePosition))
     );
-    dimensions.forEach((dimension) => {
-      if (corner[dimension] !== 'mid') {
-        const range = ranges[dimension];
-        const guideline = {};
-        guideline.type = dimension === 'x' ? 'VERTICAL' : 'HORIZONTAL';
-        guideline[dimension] =
-          corner[dimension] === 'min' ? range.max : range.min;
+    dimensions.forEach(({ coordinate }) => {
+      if (corner[coordinate] !== 'mid') {
+        const range = ranges[coordinate];
+        const guideline = {
+          type: coordinate === 'x' ? 'VERTICAL' : 'HORIZONTAL',
+          [coordinate]: corner[coordinate] === 'min' ? range.max : range.min,
+        };
         guidelines.push(guideline);
       }
     });
@@ -258,7 +308,11 @@ export const tryMoveHandle = ({
     );
   }
 
-  function applyRotation(viewTransformation, dispatch, mouse) {
+  function applyRotation(
+    viewTransformation: ViewTransformation,
+    dispatch: Dispatch,
+    mouse: MouseState
+  ) {
     const center = average(initialNodePositions.map((entry) => entry.position));
     const initialOffset = viewTransformation
       .inverse(initialMousePosition)
@@ -286,12 +340,13 @@ export const tryMoveHandle = ({
       new HandleGuide(center.translate(initialOffset.rotate(rotationAngle)))
     );
 
-    const nodePositions = initialNodePositions.map((entry) => {
+    const nodePositions: NodePosition[] = initialNodePositions.map((entry) => {
       return {
         nodeId: entry.nodeId,
         position: center.translate(
           entry.position.vectorFrom(center).rotate(rotationAngle)
         ),
+        radius: entry.radius,
       };
     });
 
@@ -307,7 +362,7 @@ export const tryMoveHandle = ({
     );
   }
 
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const { viewTransformation, mouse } = getState();
 
     const mouseVector = newMousePosition
@@ -351,8 +406,13 @@ export const tryMoveNode = ({
   oldMousePosition,
   newMousePosition,
   forcedNodePosition,
+}: {
+  nodeId: Id;
+  oldMousePosition: Point;
+  newMousePosition: Point;
+  forcedNodePosition: Point;
 }) => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const { viewTransformation, mouse } = state;
     const visualGraph = getVisualGraph(state);
@@ -364,7 +424,7 @@ export const tryMoveNode = ({
     );
     const activelyMovedNode = graph.nodes.find((node) =>
       idsMatch(node.id, nodeId)
-    );
+    ) as unknown as Node;
 
     if (forcedNodePosition) {
       naturalPosition = forcedNodePosition;
@@ -372,13 +432,13 @@ export const tryMoveNode = ({
       const vector = newMousePosition
         .vectorFrom(oldMousePosition)
         .scale(1 / viewTransformation.scale);
-      let currentPosition =
-        getState().guides.naturalPosition || activelyMovedNode.position;
+      const currentPosition =
+        getState().guides.naturalPosition || activelyMovedNode?.position;
 
-      naturalPosition = currentPosition.translate(vector);
+      naturalPosition = currentPosition?.translate(vector);
     }
 
-    let snaps = snapToNeighbourDistancesAndAngles(
+    const snaps = snapToNeighbourDistancesAndAngles(
       graph,
       nodeId,
       naturalPosition,
@@ -390,20 +450,25 @@ export const tryMoveNode = ({
       guides = new Guides(snaps.guidelines, naturalPosition, visualNode.radius);
       newPosition = snaps.snappedPosition;
     }
-    const delta = newPosition.vectorFrom(activelyMovedNode.position);
+    const delta = newPosition.vectorFrom(activelyMovedNode?.position);
     const nodePositions = [
       {
         nodeId,
         position: newPosition,
+        radius: visualNode.radius,
       },
     ];
     otherSelectedNodes.forEach((otherNodeId) => {
-      nodePositions.push({
-        nodeId: otherNodeId,
-        position: graph.nodes
-          .find((node) => idsMatch(node.id, otherNodeId))
-          .position.translate(delta),
-      });
+      const otherNode = graph.nodes.find((node) =>
+        idsMatch(node.id, otherNodeId)
+      );
+      if (otherNode) {
+        nodePositions.push({
+          nodeId: otherNodeId,
+          position: otherNode.position.translate(delta),
+          radius: visualNode.radius,
+        });
+      }
     });
 
     dispatch(
@@ -418,12 +483,12 @@ export const tryMoveNode = ({
 };
 
 export const moveNodes = (
-  oldMousePosition,
-  newMousePosition,
-  nodePositions,
-  guides,
-  autoGenerated
-) => {
+  oldMousePosition: Point,
+  newMousePosition: Point,
+  nodePositions: NodePosition[],
+  guides: Guides,
+  autoGenerated = false
+): GraphAction => {
   return {
     category: 'GRAPH',
     type: 'MOVE_NODES',
@@ -435,7 +500,9 @@ export const moveNodes = (
   };
 };
 
-export const moveNodesEndDrag = (nodePositions) => {
+export const moveNodesEndDrag = (
+  nodePositions: NodePosition[]
+): GraphAction => {
   return {
     category: 'GRAPH',
     type: 'MOVE_NODES_END_DRAG',
@@ -443,39 +510,51 @@ export const moveNodesEndDrag = (nodePositions) => {
   };
 };
 
-export const setNodeCaption = (selection, caption) => ({
+export const setNodeCaption = (
+  selection: EntitySelection,
+  caption: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_NODE_CAPTION',
   selection,
   caption,
 });
 
-export const setOntology = (selection, ontologies) => ({
+export const setOntology = (
+  selection: EntitySelection,
+  ontologies: Ontology[]
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_ONTOLOGY',
   selection,
-  ontologies: ontologies,
+  ontologies,
 });
 
-export const setCardinality = (selection, cardinality) => ({
+export const setCardinality = (
+  selection: EntitySelection,
+  cardinality: Cardinality
+) => ({
   category: 'GRAPH',
   type: 'SET_CARDINALITY',
   selection,
   cardinality,
 });
 
-export const setGraphDescription = (description) => ({
+export const setGraphDescription = (description: string): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_GRAPH_DESCRIPTION',
   description,
 });
 
-export const mergeOnPropertyValues = (selection, propertyKey) => {
-  return function (dispatch, getState) {
+export const mergeOnPropertyValues = (
+  selection: EntitySelection,
+  propertyKey: string
+) => {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const graph = getPresentGraph(state);
-    const mergeSpecs = selectedNodes(graph, selection).reduce(
-      (result, node) => {
+    const mergeSpecs: MergeSpecs[] = selectedNodes(graph, selection).reduce(
+      (result: MergeSpecs[], node) => {
         const propertyValue = node.properties[propertyKey];
         let spec = result.find((spec) => spec.propertyValue === propertyValue);
         if (spec) {
@@ -505,8 +584,8 @@ export const mergeOnPropertyValues = (selection, propertyKey) => {
   };
 };
 
-export const mergeNodes = (selection) => {
-  return function (dispatch, getState) {
+export const mergeNodes = (selection: EntitySelection) => {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const graph = getPresentGraph(state);
     const nodes = selectedNodes(graph, selection);
@@ -526,7 +605,11 @@ export const mergeNodes = (selection) => {
   };
 };
 
-export const renameProperty = (selection, oldPropertyKey, newPropertyKey) => ({
+export const renameProperty = (
+  selection: EntitySelection,
+  oldPropertyKey: string,
+  newPropertyKey: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'RENAME_PROPERTY',
   selection,
@@ -534,7 +617,11 @@ export const renameProperty = (selection, oldPropertyKey, newPropertyKey) => ({
   newPropertyKey,
 });
 
-export const setProperty = (selection, key, value) => ({
+export const setProperty = (
+  selection: EntitySelection,
+  key: string,
+  value: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_PROPERTY',
   selection,
@@ -542,14 +629,21 @@ export const setProperty = (selection, key, value) => ({
   value,
 });
 
-export const setPropertyValues = (key, nodePropertyValues) => ({
+export const setPropertyValues = (
+  key: string,
+  nodePropertyValues: Record<Id, string>
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_PROPERTY_VALUES',
   key,
   nodePropertyValues,
 });
 
-export const setArrowsProperty = (selection, key, value) => ({
+export const setArrowsProperty = (
+  selection: EntitySelection,
+  key: string,
+  value: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_ARROWS_PROPERTY',
   selection,
@@ -557,48 +651,63 @@ export const setArrowsProperty = (selection, key, value) => ({
   value,
 });
 
-export const removeProperty = (selection, key) => ({
+export const removeProperty = (
+  selection: EntitySelection,
+  key: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'REMOVE_PROPERTY',
   selection,
   key,
 });
 
-export const removeArrowsProperty = (selection, key) => ({
+export const removeArrowsProperty = (
+  selection: EntitySelection,
+  key: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'REMOVE_ARROWS_PROPERTY',
   selection,
   key,
 });
 
-export const setGraphStyle = (key, value) => ({
+export const setGraphStyle = (key: string, value: string): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_GRAPH_STYLE',
   key,
   value,
 });
 
-export const setGraphStyles = (style) => ({
+export const setGraphStyles = (style: any): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_GRAPH_STYLES',
   style,
 });
 
-export const setType = (selection, typeValue) => ({
+export const setType = (
+  selection: EntitySelection,
+  typeValue: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_TYPE',
   selection,
   typeValue,
 });
 
-export const setRelationshipType = (selection, relationshipType) => ({
+export const setRelationshipType = (
+  selection: EntitySelection,
+  relationshipType: RelationshipType
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_RELATIONSHIP_TYPE',
   selection,
   relationshipType,
 });
 
-export const setExamples = (selection, examples) => ({
+export const setExamples = (
+  selection: EntitySelection,
+  examples: string
+): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_EXAMPLES',
   selection,
@@ -606,16 +715,19 @@ export const setExamples = (selection, examples) => ({
 });
 
 export const duplicateNodesAndRelationships = (
-  nodeIdMap,
-  relationshipIdMap
-) => ({
+  nodeIdMap: Record<Id, { oldNodeId: Id; position: Point }>,
+  relationshipIdMap: Record<Id, { oldRelationshipId: Id; fromId: Id; toId: Id }>
+): GraphAction => ({
   category: 'GRAPH',
   type: 'DUPLICATE_NODES_AND_RELATIONSHIPS',
   nodeIdMap,
   relationshipIdMap,
 });
 
-export const deleteNodesAndRelationships = (nodeIdMap, relationshipIdMap) => ({
+export const deleteNodesAndRelationships = (
+  nodeIdMap: Record<Id, boolean>,
+  relationshipIdMap: Record<Id, boolean>
+): GraphAction => ({
   category: 'GRAPH',
   type: 'DELETE_NODES_AND_RELATIONSHIPS',
   nodeIdMap,
@@ -623,7 +735,7 @@ export const deleteNodesAndRelationships = (nodeIdMap, relationshipIdMap) => ({
 });
 
 export const deleteSelection = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const selection = getState().selection;
     const relationships = getPresentGraph(getState()).relationships;
 
@@ -643,7 +755,11 @@ export const deleteSelection = () => {
   };
 };
 
-const duplicateNodeOffset = (graph, selectedNodes, actionMemos) => {
+const duplicateNodeOffset = (
+  graph: Graph,
+  selectedNodes: Node[],
+  actionMemos: ActionMemosState
+) => {
   const box = calculateBoundingBox(selectedNodes, graph, 1);
   const offset = new Vector(box.right - box.left, box.bottom - box.top);
   if (actionMemos.lastDuplicateAction) {
@@ -664,10 +780,10 @@ const duplicateNodeOffset = (graph, selectedNodes, actionMemos) => {
   return offset;
 };
 
-const inverseNodeMap = (actionMemos) => {
+const inverseNodeMap = (actionMemos: ActionMemosState) => {
   if (actionMemos.lastDuplicateAction) {
     const action = actionMemos.lastDuplicateAction;
-    const map = {};
+    const map: Record<Id, Id> = {};
     for (const [newNodeId, nodeSpec] of Object.entries(action.nodeIdMap)) {
       map[nodeSpec.oldNodeId] = newNodeId;
     }
@@ -677,16 +793,16 @@ const inverseNodeMap = (actionMemos) => {
 };
 
 export const duplicateSelection = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const selection = state.selection;
     const graph = getPresentGraph(state);
     const actionMemos = state.actionMemos;
 
     const nodesToDuplicate = selectedNodes(graph, selection);
-    const nodeIdMap = {};
-    const oldNodeToNewNodeMap = {};
-    const relationshipsToBeDuplicated = {};
+    const nodeIdMap: Record<Id, { oldNodeId: Id; position: Point }> = {};
+    const oldNodeToNewNodeMap: Record<Id, Id> = {};
+    const relationshipsToBeDuplicated: Record<Id, boolean> = {};
 
     if (nodesToDuplicate.length > 0) {
       const offset = duplicateNodeOffset(graph, nodesToDuplicate, actionMemos);
@@ -717,40 +833,53 @@ export const duplicateSelection = () => {
 
     const previousNodeMap = inverseNodeMap(actionMemos);
 
-    const relationshipIdMap = {};
+    const relationshipIdMap: Record<
+      Id,
+      {
+        oldRelationshipId: Id;
+        type: string;
+        relationshipType: RelationshipType;
+        fromId: Id;
+        toId: Id;
+      }
+    > = {};
     let newRelationshipId = nextAvailableId(graph.relationships);
     Object.keys(relationshipsToBeDuplicated).forEach((relationshipId) => {
       const oldRelationship = graph.relationships.find((r) =>
         idsMatch(relationshipId, r.id)
       );
-      relationshipIdMap[newRelationshipId] = {
-        oldRelationshipId: relationshipId,
-        type: oldRelationship.type,
-        relationshipType: oldRelationship.relationshipType,
-        fromId:
-          oldNodeToNewNodeMap[oldRelationship.fromId] ||
-          previousNodeMap[oldRelationship.fromId] ||
-          oldRelationship.fromId,
-        toId:
-          oldNodeToNewNodeMap[oldRelationship.toId] ||
-          previousNodeMap[oldRelationship.toId] ||
-          oldRelationship.toId,
-      };
-      newRelationshipId = nextId(newRelationshipId);
+      if (oldRelationship) {
+        relationshipIdMap[newRelationshipId] = {
+          oldRelationshipId: relationshipId,
+          type: oldRelationship.type,
+          relationshipType: oldRelationship.relationshipType,
+          fromId:
+            oldNodeToNewNodeMap[oldRelationship.fromId] ||
+            previousNodeMap[oldRelationship.fromId] ||
+            oldRelationship.fromId,
+          toId:
+            oldNodeToNewNodeMap[oldRelationship.toId] ||
+            previousNodeMap[oldRelationship.toId] ||
+            oldRelationship.toId,
+        };
+        newRelationshipId = nextId(newRelationshipId);
+      }
     });
 
     dispatch(duplicateNodesAndRelationships(nodeIdMap, relationshipIdMap));
   };
 };
 
-export const reverseRelationships = (selection) => ({
+export const reverseRelationships = (
+  selection: EntitySelection
+): GraphAction => ({
   category: 'GRAPH',
   type: 'REVERSE_RELATIONSHIPS',
   selection,
 });
 
-export const inlineRelationships = (selection) => {
-  return function (dispatch, getState) {
+export const inlineRelationships = (selection: EntitySelection) => {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const graph = getPresentGraph(state);
     const relationshipSpecs = selectedRelationships(graph, selection).map(
@@ -760,7 +889,7 @@ export const inlineRelationships = (selection) => {
         );
         return {
           addPropertiesNodeId: relationship.fromId,
-          properties: targetNode.properties,
+          properties: targetNode?.properties,
           removeNodeId: relationship.toId,
         };
       }
@@ -773,8 +902,8 @@ export const inlineRelationships = (selection) => {
   };
 };
 
-export const importNodesAndRelationships = (importedGraph) => {
-  return function (dispatch, getState) {
+export const importNodesAndRelationships = (importedGraph: Graph) => {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const graph = getPresentGraph(state);
     const visualGraph = getVisualGraph(state);
@@ -785,9 +914,9 @@ export const importNodesAndRelationships = (importedGraph) => {
       boundingBox.top + graph.style.radius
     );
 
-    const newNodes = [];
-    const newRelationships = [];
-    const nodeIdMap = {};
+    const newNodes: Node[] = [];
+    const newRelationships: Relationship[] = [];
+    const nodeIdMap: Record<Id, Id> = {};
 
     let newNodeId = nextAvailableId(graph.nodes);
     importedGraph.nodes.forEach((oldNode) => {
@@ -822,7 +951,7 @@ export const importNodesAndRelationships = (importedGraph) => {
 };
 
 export const convertCaptionsToPropertyValues = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const selection = state.selection;
     const graph = getPresentGraph(state);

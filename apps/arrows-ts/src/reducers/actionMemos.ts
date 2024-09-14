@@ -1,12 +1,12 @@
-import { Action } from 'redux';
+import { DuplicateNodesAndRelationshipsAction } from './graph';
 
 export type ActionMemosState = {
-  lastDuplicateAction?: Action;
+  lastDuplicateAction?: DuplicateNodesAndRelationshipsAction;
 };
 
 export default function actionMemos(
   state: ActionMemosState = {},
-  action: Action
+  action: DuplicateNodesAndRelationshipsAction
 ): ActionMemosState {
   switch (action.type) {
     case 'DUPLICATE_NODES_AND_RELATIONSHIPS':
