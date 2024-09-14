@@ -1,15 +1,19 @@
 import { toggleSelection } from './selection';
 import { BoundingBox } from '@neo4j-arrows/graphics';
 import { getVisualGraph } from '../selectors/index';
+import { Dispatch } from 'redux';
+import { ArrowsState } from '../reducers';
+import { Point } from '@neo4j-arrows/model';
+import { Marquee } from '../reducers/selectionMarquee';
 
-export const setMarquee = (from, to) => ({
+export const setMarquee = (from: Point, to: Point) => ({
   type: 'SET_MARQUEE',
   marquee: { from, to },
   newMousePosition: to,
 });
 
 export const selectItemsInMarquee = () => {
-  return function (dispatch, getState) {
+  return function (dispatch: Dispatch, getState: () => ArrowsState) {
     const state = getState();
     const marquee = state.gestures.selectionMarquee;
     if (marquee) {
@@ -23,7 +27,7 @@ export const selectItemsInMarquee = () => {
   };
 };
 
-export const getBBoxFromCorners = ({ from, to }) =>
+export const getBBoxFromCorners = ({ from, to }: Marquee) =>
   new BoundingBox(
     Math.min(from.x, to.x),
     Math.max(from.x, to.x),

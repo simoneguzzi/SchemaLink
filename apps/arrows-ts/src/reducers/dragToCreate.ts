@@ -1,18 +1,36 @@
+import { Id, Point } from '@neo4j-arrows/model';
+import { Action } from 'redux';
+
+export type DraggingState = {
+  sourceNodeId: Id | null;
+  secondarySourceNodeIds: Id[];
+  targetNodeIds: Id[];
+  newNodePosition: Point | null;
+};
+
+type DraggingAction = Action<
+  'ACTIVATE_RING' | 'RING_DRAGGED' | 'DEACTIVATE_RING' | 'END_DRAG'
+> & {
+  sourceNodeId: Id;
+  secondarySourceNodeIds: Id[];
+  targetNodeIds: Id[];
+  position: Point;
+};
+
 export default function dragging(
-  state = {
+  state: DraggingState = {
     sourceNodeId: null,
     secondarySourceNodeIds: [],
     targetNodeIds: [],
     newNodePosition: null,
   },
-  action
-) {
+  action: DraggingAction
+): DraggingState {
   switch (action.type) {
     case 'ACTIVATE_RING':
       return {
         sourceNodeId: action.sourceNodeId,
         secondarySourceNodeIds: [],
-        nodeType: action.nodeType,
         targetNodeIds: [],
         newNodePosition: null,
       };

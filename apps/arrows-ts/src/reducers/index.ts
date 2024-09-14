@@ -6,9 +6,9 @@ import graph from './graph';
 import selection from './selection';
 import mouse from './mouse';
 import guides from './guides';
-import applicationLayout from './applicationLayout';
+import applicationLayout, { ApplicationLayoutState } from './applicationLayout';
 import viewTransformation from './viewTransformation';
-import gestures from './gestures';
+import gestures, { GesturesState } from './gestures';
 import actionMemos, { ActionMemosState } from './actionMemos';
 import applicationDialogs, {
   ApplicationDialogsState,
@@ -28,9 +28,9 @@ export type ArrowsState = {
   graph: StateWithHistory<Graph>;
   selection: any;
   mouse: any;
-  gestures: any;
+  gestures: GesturesState;
   guides: Guides;
-  applicationLayout: any;
+  applicationLayout: ApplicationLayoutState;
   viewTransformation: ViewTransformation;
   actionMemos: ActionMemosState;
   applicationDialogs: ApplicationDialogsState;
