@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { Form, Dropdown } from 'semantic-ui-react';
 
-export default class extends Component {
+type DropdownProps = {
+  value: string;
+  placeholder: string;
+  options: string[];
+  onChange: (value: string) => void;
+};
+
+export default class extends Component<DropdownProps> {
   render() {
     const { value, placeholder, options, onChange } = this.props;
 
@@ -16,7 +23,7 @@ export default class extends Component {
           trigger={trigger}
           options={textAndValueOptions}
           defaultValue={value}
-          onChange={(e, { value }) => onChange(value)}
+          onChange={(e, { value }) => onChange(value as string)}
         />
       </Form.Field>
     );

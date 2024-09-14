@@ -11,8 +11,23 @@ import { GeneralToolbox } from './GeneralToolbox';
 import GeneralStyling from './GeneralStyling';
 import ThemeCards from './ThemeCards';
 import { renderCounters } from './EntityCounters';
+import { ImageInfo } from '@neo4j-arrows/graphics';
+import { Entity, Graph } from '@neo4j-arrows/model';
 
-export default class GeneralInspector extends Component {
+type GeneralInspectorProps = {
+  graph: Graph;
+  onSaveGraphStyle: (key: string, value: unknown) => void;
+  cachedImages: Record<string, ImageInfo>;
+  onApplyTheme: (style: any) => void;
+  styleMode: string;
+  onSelect: (entities: Entity[]) => void;
+  onDescriptionChange: (description: string) => void;
+  onPlusNodeClick: () => void;
+  onStyleTheme: () => void;
+  onStyleCustomize: () => void;
+};
+
+export default class GeneralInspector extends Component<GeneralInspectorProps> {
   render() {
     const {
       graph,

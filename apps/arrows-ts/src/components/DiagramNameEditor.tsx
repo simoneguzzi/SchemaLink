@@ -2,8 +2,21 @@ import React, { Component } from 'react';
 import { Modal, Button, Input, Menu } from 'semantic-ui-react';
 import DocumentTitle from 'react-document-title';
 
-export class DiagramNameEditor extends Component {
-  constructor(props) {
+type DiagramNameEditorProps = {
+  diagramName: string;
+  setDiagramName: (name: string) => void;
+};
+
+type DiagramNameEditorState = {
+  editable: boolean;
+  diagramName: string;
+};
+
+export class DiagramNameEditor extends Component<
+  DiagramNameEditorProps,
+  DiagramNameEditorState
+> {
+  constructor(props: DiagramNameEditorProps) {
     super(props);
     this.state = {
       editable: false,
@@ -11,7 +24,7 @@ export class DiagramNameEditor extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: DiagramNameEditorProps) {
     if (nextProps.diagramName !== this.props.diagramName) {
       this.setState({
         diagramName: nextProps.diagramName,
@@ -25,7 +38,7 @@ export class DiagramNameEditor extends Component {
     });
   };
 
-  onChange = (event) => {
+  onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       diagramName: event.target.value,
     });
@@ -37,7 +50,7 @@ export class DiagramNameEditor extends Component {
     });
   };
 
-  onKeyPress = (e) => {
+  onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       this.commit();
     }

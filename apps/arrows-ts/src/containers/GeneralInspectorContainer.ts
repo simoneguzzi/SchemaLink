@@ -9,8 +9,11 @@ import GeneralInspector from '../components/GeneralInspector';
 import { getPresentGraph } from '../selectors';
 import { styleCustomize, styleTheme } from '../actions/applicationLayout';
 import { toggleSelection } from '../actions/selection';
+import { ArrowsState } from '../reducers';
+import { Dispatch } from 'redux';
+import { Entity } from '@neo4j-arrows/model';
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: ArrowsState) => {
   return {
     graph: getPresentGraph(state),
     cachedImages: state.cachedImages,
@@ -19,12 +22,12 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    onSelect: (entities) => {
+    onSelect: (entities: Entity[]) => {
       dispatch(toggleSelection(entities, 'replace'));
     },
-    onSaveGraphStyle: (key, value) => {
+    onSaveGraphStyle: (key: string, value: any) => {
       dispatch(setGraphStyle(key, value));
     },
     onPlusNodeClick: () => {
@@ -36,10 +39,10 @@ const mapDispatchToProps = (dispatch) => {
     onStyleCustomize: () => {
       dispatch(styleCustomize());
     },
-    onApplyTheme: (style) => {
+    onApplyTheme: (style: any) => {
       dispatch(setGraphStyles(style));
     },
-    onDescriptionChange: (description) => {
+    onDescriptionChange: (description: string) => {
       dispatch(setGraphDescription(description));
     },
   };
