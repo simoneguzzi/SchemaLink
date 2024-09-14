@@ -14,17 +14,17 @@ export interface Node extends Entity {
   examples?: string;
 }
 
-export const moveTo = (node: Node, newPosition: Point) => {
+export const moveTo = (node: Node, newPosition: Point): Node => {
   return {
     ...node,
     position: newPosition,
   };
 };
 
-export const translate = (node: Node, vector: Vector) =>
+export const translate = (node: Node, vector: Vector): Node =>
   moveTo(node, node.position.translate(vector));
 
-export const setCaption = (node: Node, caption: string) => {
+export const setCaption = (node: Node, caption: string): Node => {
   return {
     ...node,
     caption,

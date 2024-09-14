@@ -52,7 +52,7 @@ export const setRelationshipType = (
     cardinality:
       relationshipType === RelationshipType.ASSOCIATION
         ? relationship.cardinality ?? Cardinality.ONE_TO_MANY
-        : null,
+        : undefined,
     relationshipType,
   };
 };

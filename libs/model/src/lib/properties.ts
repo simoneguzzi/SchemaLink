@@ -190,11 +190,11 @@ export const styleFromDatabaseEntity = (entity: Entity) => {
   }, {} as Record<string, string>);
 };
 
-export const renameProperty = (
-  entity: Entity,
+export const renameProperty = <T extends Entity>(
+  entity: T,
   oldPropertyKey: string,
   newPropertyKey: string
-) => {
+): T => {
   const properties: Record<string, string> = {};
   Object.keys(entity.properties).forEach((key) => {
     if (key === oldPropertyKey) {
@@ -209,7 +209,11 @@ export const renameProperty = (
   };
 };
 
-export const setProperty = (entity: Entity, key: string, value: string) => {
+export const setProperty = <T extends Entity>(
+  entity: T,
+  key: string,
+  value: string
+): T => {
   const properties = { ...entity.properties };
   properties[key] = value;
   return {
@@ -218,11 +222,11 @@ export const setProperty = (entity: Entity, key: string, value: string) => {
   };
 };
 
-export const setArrowsProperty = (
-  entity: Entity,
+export const setArrowsProperty = <T extends Entity>(
+  entity: T,
   key: string,
   value: string
-) => {
+): T => {
   const newEntity = { ...entity };
 
   if (!newEntity.style) {
@@ -239,7 +243,10 @@ export const setArrowsProperty = (
   return newEntity;
 };
 
-export const removeProperty = (entity: Entity, keyToRemove: string) => {
+export const removeProperty = <T extends Entity>(
+  entity: T,
+  keyToRemove: string
+): T => {
   const properties: Record<string, string> = {};
   Object.keys(entity.properties).forEach((key) => {
     if (key !== keyToRemove) {
@@ -252,7 +259,10 @@ export const removeProperty = (entity: Entity, keyToRemove: string) => {
   };
 };
 
-export const removeArrowsProperty = (entity: Entity, keyToRemove: string) => {
+export const removeArrowsProperty = <T extends Entity>(
+  entity: T,
+  keyToRemove: string
+): T => {
   const style = { ...entity.style };
   delete style[keyToRemove];
   return {
