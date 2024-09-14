@@ -11,10 +11,6 @@ export const calculateBoundingBox = (
   graph: Graph,
   scale = 1
 ) => {
-  if (nodes.length === 0) {
-    return null;
-  }
-
   const getPosition = (node: Node) => node.position.scale(scale);
   const radius = (node: Node) =>
     getStyleSelector(node, 'radius')(graph) * scale;

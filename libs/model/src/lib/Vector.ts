@@ -1,3 +1,8 @@
+export interface Component {
+  dx: number;
+  dy: number;
+}
+
 export class Vector {
   constructor(readonly dx: number, readonly dy: number) {}
 
