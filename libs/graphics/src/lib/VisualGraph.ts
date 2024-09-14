@@ -9,7 +9,6 @@ import { VisualNode } from './VisualNode';
 import { RoutedRelationshipBundle } from './RoutedRelationshipBundle';
 import { VisualRelationship } from './VisualRelationship';
 import { ResolvedRelationship } from './ResolvedRelationship';
-import { CanvasAdaptor } from './utils/CanvasAdaptor';
 import { DisplayOptions } from './utils/DisplayOptions';
 import { DrawingContext } from './utils/DrawingContext';
 
@@ -72,7 +71,12 @@ export class VisualGraph {
         boundingBox.contains(routedRelationship.arrow.midPoint())
       )
       .map((routedRelationship) => routedRelationship.resolvedRelationship)
-      .map((relationship) => ({ ...relationship, entityType: 'relationship' }));
+      .map((relationship) => ({
+        ...relationship,
+        entityType: 'relationship',
+        properties: {},
+        style: {},
+      }));
 
     return [...nodes, ...relationships];
   }
