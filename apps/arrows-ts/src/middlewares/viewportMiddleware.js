@@ -1,10 +1,10 @@
 import { adjustViewport } from '../actions/viewTransformation';
-import { ViewTransformation } from '../state/ViewTransformation';
 import {
   canvasPadding,
   computeCanvasSize,
   Point,
   Vector,
+  ViewTransformation,
 } from '@neo4j-arrows/model';
 import { tryMoveNode } from '../actions/graph';
 import { getVisualGraph } from '../selectors/index';
