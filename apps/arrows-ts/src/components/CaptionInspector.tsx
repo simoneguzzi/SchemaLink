@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
 import { Button, Form, Input, Popup } from 'semantic-ui-react';
 
-export class CaptionInspector extends Component {
+interface CaptionInspectorProps {
+  value: string;
+  onSaveCaption: (caption: string) => void;
+  onConvertCaptionsToPropertyValues: () => void;
+}
+
+export class CaptionInspector extends Component<CaptionInspectorProps> {
   render() {
     const { value, onSaveCaption, onConvertCaptionsToPropertyValues } =
       this.props;
@@ -9,22 +15,14 @@ export class CaptionInspector extends Component {
     const fieldValue = value || '';
     const placeholder = value === undefined ? '<multiple values>' : null;
 
-    const handleKeyDown = (evt) => {
-      if (evt.key === 'Escape' || (evt.key === 'Enter' && evt.metaKey)) {
-        this.captionInput.inputRef && this.captionInput.inputRef.blur();
-      }
-    };
-
     const textBox = (
       <Input
         value={fieldValue}
-        onFocus={this.moveCursorToEnd}
         onChange={(event) => onSaveCaption(event.target.value)}
         placeholder={placeholder}
-        ref={(elm) => (this.captionInput = elm)}
-        onKeyDown={handleKeyDown.bind(this)}
       />
     );
+
     const popupContent = (
       <Form>
         <Form.Field>

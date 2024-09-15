@@ -31,7 +31,10 @@ export const deactivateEditing = () => ({
   type: 'DEACTIVATE_EDITING',
 });
 
-export const toggleSelection = (entities: Entity[], mode: string) => ({
+export const toggleSelection = (
+  entities: Pick<Entity, 'id' | 'entityType'>[],
+  mode: string
+) => ({
   type: 'TOGGLE_SELECTION',
   entities: entities.map((entity) => ({
     entityType: entity.entityType,

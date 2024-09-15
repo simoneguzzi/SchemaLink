@@ -1,32 +1,61 @@
-import React, { Component } from 'react';
-import { cssAlignFromSvgAlign } from '@neo4j-arrows/graphics';
+import React, { ChangeEvent, Component } from 'react';
+import {
+  NodeCaptionInsideNode,
+  NodeCaptionFillNode,
+  NodeCaptionOutsideNode,
+  VisualNode,
+  cssAlignFromSvgAlign,
+} from '@neo4j-arrows/graphics';
 
-export class CaptionEditor extends Component {
-  constructor(props) {
+interface CaptionEditorProps {
+  component:
+    | NodeCaptionInsideNode
+    | NodeCaptionOutsideNode
+    | NodeCaptionFillNode;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  onSetNodeCaption: (caption: string) => void;
+  visualNode: VisualNode;
+}
+
+interface CaptionEditorState {
+  selectionStart?: number;
+}
+
+export class CaptionEditor extends Component<
+  CaptionEditorProps,
+  CaptionEditorState
+> {
+  constructor(props: CaptionEditorProps) {
     super(props);
     this.state = {};
     this.textArea = React.createRef();
   }
 
+  textArea: React.RefObject<HTMLTextAreaElement>;
+
   componentDidMount() {
     const textArea = this.textArea.current;
-    textArea.select();
+    textArea?.select();
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
+  shouldComponentUpdate(nextProps: CaptionEditorProps) {
     return nextProps.visualNode !== this.props.visualNode;
   }
 
   componentDidUpdate() {
     const textArea = this.textArea.current;
-    if (document.activeElement === textArea) {
+    if (
+      textArea &&
+      document.activeElement === textArea &&
+      this.state.selectionStart
+    ) {
       textArea.selectionStart = this.state.selectionStart;
       textArea.selectionEnd = this.state.selectionStart;
     }
   }
 
-  handleChange = (e) => {
-    const normalise = (text) => text.replace(/\s+/g, ' ');
+  handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const normalise = (text: string) => text.replace(/\s+/g, ' ');
     const selectionStart = normalise(
       e.target.value.substring(0, e.target.selectionStart)
     ).length;

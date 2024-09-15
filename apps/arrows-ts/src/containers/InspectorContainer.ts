@@ -117,7 +117,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     inlineRelationships: (selection: EntitySelection) => {
       dispatch(inlineRelationships(selection));
     },
-    onSelect: (entities: Entity[]) => {
+    onSelect: (entities: Pick<Entity, 'id' | 'entityType'>[]) => {
       dispatch(toggleSelection(entities, 'replace'));
     },
     onSaveOntology: (selection: EntitySelection, ontologies: Ontology[]) => {

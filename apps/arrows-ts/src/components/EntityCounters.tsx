@@ -1,10 +1,26 @@
-import React from 'react';
-import { Label, Icon, Form } from 'semantic-ui-react';
+import { Entity, Id } from '@neo4j-arrows/model';
+import React, { ReactElement } from 'react';
+import {
+  Label,
+  Icon,
+  Form,
+  SemanticCOLORS,
+  SemanticICONS,
+} from 'semantic-ui-react';
 
-export const renderCounters = (nodeIds, relationshipIds, onSelect, color) => {
-  const parts = [];
+export const renderCounters = (
+  nodeIds: Id[],
+  relationshipIds: Id[],
+  onSelect: (entities: Pick<Entity, 'id' | 'entityType'>[]) => void,
+  color: SemanticCOLORS
+) => {
+  const parts: ReactElement[] = [];
 
-  const pushCounterPill = (ids, entityType, iconName) => {
+  const pushCounterPill = (
+    ids: Id[],
+    entityType: string,
+    iconName: SemanticICONS
+  ) => {
     const length = ids.length;
 
     const selectOneEntityType = () => {

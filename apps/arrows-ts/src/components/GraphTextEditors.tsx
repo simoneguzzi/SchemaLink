@@ -2,29 +2,56 @@ import React, { Component } from 'react';
 import { CaptionEditor } from './CaptionEditor';
 import { RelationshipTypeEditor } from './RelationshipTypeEditor';
 import { PropertiesEditor } from './PropertiesEditor';
-import { getStyleSelector, Vector } from '@neo4j-arrows/model';
+import {
+  Entity,
+  EntitySelection,
+  getStyleSelector,
+  Vector,
+  ViewTransformation,
+} from '@neo4j-arrows/model';
 import {
   ComponentStack,
+  DrawableComponent,
   NodeCaptionFillNode,
+  NodeCaptionInsideNode,
   NodeCaptionOutsideNode,
   RelationshipType,
+  StackedComponent,
+  VisualGraph,
+  VisualNode,
+  VisualRelationship,
 } from '@neo4j-arrows/graphics';
 import { measureTextContext } from '../selectors';
 import { LabelsEditor } from './LabelsEditor';
 
 const EditableComponentTypes = ['CAPTION', 'TYPE', 'LABELS', 'PROPERTIES'];
 
-const editableComponentFilter = (component) =>
+const editableComponentFilter = (component: StackedComponent) =>
   EditableComponentTypes.indexOf(component.component.type) !== -1;
 
-export class GraphTextEditors extends Component {
-  constructor(props) {
-    super(props);
-  }
+interface GraphTextEditorsProps {
+  onExit: () => void;
+  onSetPropertyKey: (
+    selection: EntitySelection,
+    oldPropertyKey: string,
+    newPropertyKey: string
+  ) => void;
+  onSetPropertyValue: (
+    selection: EntitySelection,
+    key: string,
+    value: string
+  ) => void;
+  onSetNodeCaption: (selection: EntitySelection, caption: string) => void;
+  onSetRelationshipType: (selection: EntitySelection, type: string) => void;
+  selection: EntitySelection;
+  viewTransformation: ViewTransformation;
+  visualGraph: VisualGraph;
+}
 
-  entityEditor(entity) {
+export class GraphTextEditors extends Component<GraphTextEditorsProps> {
+  entityEditor(entity: Entity) {
     switch (entity.entityType) {
-      case 'node':
+      case 'node': {
         const visualNode = this.props.visualGraph.nodes[entity.id];
         let insideComponents = visualNode.insideComponents;
         let outsideComponents = visualNode.outsideComponents;
@@ -32,25 +59,26 @@ export class GraphTextEditors extends Component {
           insideComponents.isEmpty(editableComponentFilter) &&
           outsideComponents.isEmpty(editableComponentFilter)
         ) {
-          const style = (styleAttribute) =>
+          const style = (styleAttribute: string) =>
             getStyleSelector(
               visualNode.node,
               styleAttribute
             )(this.props.visualGraph.graph);
           const captionPosition = style('caption-position');
           switch (captionPosition) {
-            case 'inside':
+            case 'inside': {
               const insideCaption = new NodeCaptionFillNode(
                 '',
                 visualNode.radius,
-                'true',
+                true,
                 style,
                 measureTextContext
               );
               insideComponents = new ComponentStack();
               insideComponents.push(insideCaption);
               break;
-            default:
+            }
+            default: {
               const outsideCaption = new NodeCaptionOutsideNode(
                 '',
                 visualNode.outsideOrientation,
@@ -61,6 +89,7 @@ export class GraphTextEditors extends Component {
               outsideComponents = new ComponentStack();
               outsideComponents.push(outsideCaption);
               break;
+            }
           }
         }
         return (
@@ -73,7 +102,7 @@ export class GraphTextEditors extends Component {
           >
             {insideComponents.offsetComponents
               .filter(editableComponentFilter)
-              .map((offsetComponent) => (
+              .map((offsetComponent: StackedComponent) => (
                 <div
                   key={offsetComponent.component.type}
                   style={{
@@ -90,7 +119,7 @@ export class GraphTextEditors extends Component {
               ))}
             {outsideComponents.offsetComponents
               .filter(editableComponentFilter)
-              .map((offsetComponent) => (
+              .map((offsetComponent: StackedComponent) => (
                 <div
                   key={offsetComponent.component.type}
                   style={{
@@ -104,24 +133,16 @@ export class GraphTextEditors extends Component {
               ))}
           </div>
         );
+      }
 
-      case 'relationship':
-        let visualRelationship = null;
-        this.props.visualGraph.relationshipBundles.forEach(
-          (relationshipBundle) => {
-            relationshipBundle.routedRelationships.forEach(
-              (candidateRelationship) => {
-                if (candidateRelationship.id === entity.id) {
-                  visualRelationship = candidateRelationship;
-                }
-              }
-            );
-          }
-        );
+      case 'relationship': {
+        const visualRelationship = this.props.visualGraph.relationshipBundles
+          .flatMap(({ routedRelationships }) => routedRelationships)
+          .find((candidateRelationship) => candidateRelationship.id);
         if (visualRelationship) {
           let components = visualRelationship.components;
           if (components.isEmpty(editableComponentFilter)) {
-            const style = (styleAttribute) =>
+            const style = (styleAttribute: string) =>
               getStyleSelector(
                 visualRelationship.resolvedRelationship.relationship,
                 styleAttribute
@@ -160,30 +181,39 @@ export class GraphTextEditors extends Component {
           ));
         }
         break;
+      }
     }
     return null;
   }
 
-  componentEditor(visualEntity, component) {
+  componentEditor(
+    visualEntity: VisualNode | VisualRelationship,
+    component: DrawableComponent
+  ) {
     switch (component.type) {
       case 'CAPTION':
         return (
-          <CaptionEditor
-            key={'caption-' + visualEntity.id}
-            visualNode={visualEntity}
-            component={component}
-            onSetNodeCaption={(caption) =>
-              this.props.onSetNodeCaption(this.props.selection, caption)
-            }
-            onKeyDown={this.handleKeyDown}
-          />
+          visualEntity instanceof VisualNode &&
+          (component instanceof NodeCaptionInsideNode ||
+            component instanceof NodeCaptionOutsideNode ||
+            component instanceof NodeCaptionFillNode) && (
+            <CaptionEditor
+              key={'caption-' + visualEntity.id}
+              visualNode={visualEntity}
+              component={component}
+              onSetNodeCaption={(caption) =>
+                this.props.onSetNodeCaption(this.props.selection, caption)
+              }
+              onKeyDown={this.handleKeyDown}
+            />
+          )
         );
       case 'TYPE':
         return (
           <RelationshipTypeEditor
             visualRelationship={visualEntity}
             component={component}
-            onSetRelationshipType={(type) =>
+            onSetRelationshipType={(type: string) =>
               this.props.onSetRelationshipType(this.props.selection, type)
             }
             onKeyDown={this.handleKeyDown}
@@ -230,7 +260,7 @@ export class GraphTextEditors extends Component {
     }
   }
 
-  handleKeyDown = (e) => {
+  handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape' || (e.key === 'Enter' && e.metaKey)) {
       this.props.onExit();
     }

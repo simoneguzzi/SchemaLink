@@ -57,7 +57,7 @@ interface DetailInspectorProps {
   onSaveType: (selection: EntitySelection, type: string) => void;
   onDuplicate: () => void;
   onDelete: () => void;
-  onSelect: (entities: Entity[]) => void;
+  onSelect: (entities: Pick<Entity, 'id' | 'entityType'>[]) => void;
   onMergeOnValues: (selection: EntitySelection, key: string) => void;
   onSavePropertyKey: (
     selection: EntitySelection,
