@@ -124,6 +124,7 @@ export class Gestures {
             hasIngoingArrowHead: false,
             fillArrowHeads: true,
             arrowHeadsWidth: 0,
+            shaftWidth: 1,
           };
           if (targetNode && sourceNode === targetNode) {
             const arrow = new BalloonArrow(
