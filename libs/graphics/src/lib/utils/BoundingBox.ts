@@ -85,16 +85,11 @@ export const AntiBoundingBox = new BoundingBox(
   -Number.MAX_VALUE
 );
 
-/**
- * ABK:
- * - this needs a test
- * - this does not work on an empty array, returning the AntiBoundingBox
- */
 export const combineBoundingBoxes = (boundingBoxes: BoundingBox[]) => {
   // return boundingBoxes.reduce((accumulator, value) => (accumulator !== null) ? accumulator.combine(value) : value, null as BoundingBox | null)
   return boundingBoxes.reduce(
-    (accumulator, value) => accumulator.combine(value),
-    AntiBoundingBox
+    (accumulator, value) => (accumulator ? accumulator.combine(value) : value),
+    null
   );
 };
 
