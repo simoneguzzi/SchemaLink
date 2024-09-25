@@ -1,6 +1,13 @@
 import { Ontology } from '@neo4j-arrows/model';
 import React, { Component } from 'react';
-import { Button, Modal, Form, TextArea, Message } from 'semantic-ui-react';
+import {
+  Button,
+  Modal,
+  Form,
+  TextArea,
+  Message,
+  MessageItemProps,
+} from 'semantic-ui-react';
 
 interface ImportModalProps {
   onCancel: () => void;
@@ -16,6 +23,7 @@ interface ImportModalProps {
 interface ImportModalState {
   errorMessage?: string;
   text: string;
+  messageProps: MessageItemProps;
 }
 
 class ImportModal extends Component<ImportModalProps, ImportModalState> {
@@ -24,6 +32,12 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
     this.state = {
       text: '',
       errorMessage: undefined,
+      messageProps: {
+        icon: 'checkmark',
+        positive: true,
+        header: 'This is a valid LinkML schema',
+        content: 'You can import safely',
+      },
     };
   }
 
@@ -40,6 +54,58 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
         errorMessage: result.errorMessage,
       });
     }
+  };
+
+  validateText = async (text: string) => {
+    this.setState({
+      messageProps: {
+        icon: 'circle notched loading',
+        positive: false,
+        negative: false,
+        header: 'Validating',
+        content: 'Importing might lead to unexpected results',
+      },
+    });
+    await fetch(import.meta.env.VITE_VALIDATE_LINKML_ENDPOINT, {
+      body: text,
+      method: 'POST',
+    })
+      .then((response) =>
+        response.status === 200
+          ? response.json().then((data) =>
+              this.setState({
+                messageProps: {
+                  icon: data.length ? 'cancel' : 'checkmark',
+                  positive: !data.length,
+                  negative: data.length,
+                  header: `This is ${
+                    data.length ? 'not ' : ''
+                  }a valid LinkML schema`,
+                  content: data.length
+                    ? data[0].message
+                    : 'You can import safely',
+                },
+              })
+            )
+          : this.setState({
+              messageProps: {
+                icon: 'cancel',
+                negative: true,
+                header: 'Could not validate the LinkML schema',
+                content: `The server returned status ${response.status}`,
+              },
+            })
+      )
+      .catch((e) =>
+        this.setState({
+          messageProps: {
+            icon: 'cancel',
+            negative: true,
+            header: 'Could not validate the LinkML schema',
+            content: e.message,
+          },
+        })
+      );
   };
 
   fileChange = () => {
@@ -100,9 +166,13 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
                 height: 300,
                 fontFamily: 'monospace',
               }}
-              onChange={(event) => this.setState({ text: event.target.value })}
+              onChange={(event) => {
+                this.setState({ text: event.target.value });
+                this.validateText(event.target.value);
+              }}
               value={this.state.text}
             />
+            <Message {...this.state.messageProps} />
           </Form>
           {this.state.errorMessage ? (
             <Message negative>
