@@ -53,6 +53,14 @@ export const setRelationshipType = (
       relationshipType === RelationshipType.ASSOCIATION
         ? relationship.cardinality ?? Cardinality.ONE_TO_MANY
         : undefined,
+    ontologies:
+      relationshipType === RelationshipType.ASSOCIATION
+        ? relationship.ontologies
+        : undefined,
+    examples:
+      relationshipType === RelationshipType.ASSOCIATION
+        ? relationship.examples
+        : undefined,
     relationshipType,
   };
 };

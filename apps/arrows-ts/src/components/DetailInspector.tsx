@@ -27,6 +27,8 @@ import {
   EntitySelection,
   Ontology,
   Entity,
+  Relationship,
+  isRelationship,
 } from '@neo4j-arrows/model';
 import { renderCounters } from './EntityCounters';
 import PropertyTable from './PropertyTable';
@@ -254,7 +256,16 @@ export default class DetailInspector extends Component<
       }
     }
 
-    if (selectionIncludes.relationships || selectionIncludes.nodes) {
+    if (
+      (selectionIncludes.relationships || selectionIncludes.nodes) &&
+      entities
+        .filter((entity) => isRelationship(entity))
+        .every(
+          (entity) =>
+            (entity as Relationship).relationshipType ===
+            RelationshipType.ASSOCIATION
+        )
+    ) {
       const properties = combineProperties(entities);
       const propertySummary = summarizeProperties(entities, graph);
 
