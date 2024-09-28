@@ -1,4 +1,9 @@
-import { OntologiesJson, OntologyConfig, OntologyJson } from './lib/types';
+import {
+  OntologiesJson,
+  OntologyConfig,
+  OntologyPropertiesJson,
+  OntologyTermsJson,
+} from './lib/types';
 import { Ontology } from '@neo4j-arrows/model';
 
 const ONTOLOGIES_LIST = 'https://www.ebi.ac.uk/ols4/api/ontologies';
@@ -30,10 +35,19 @@ export const ontologies = async (size = 20): Promise<Ontology[]> => {
   );
 };
 
-export const examples = async (ontology: Ontology): Promise<string[]> => {
+export const terms = async (ontology: Ontology): Promise<string[]> => {
   return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/terms`).then((response) =>
-    response.json().then((data: OntologyJson) => {
+    response.json().then((data: OntologyTermsJson) => {
       return data._embedded.terms.map(({ label }) => label);
     })
+  );
+};
+
+export const properties = async (ontology: Ontology): Promise<string[]> => {
+  return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/properties`).then(
+    (response) =>
+      response.json().then((data: OntologyPropertiesJson) => {
+        return data._embedded.properties.map(({ label }) => label);
+      })
   );
 };

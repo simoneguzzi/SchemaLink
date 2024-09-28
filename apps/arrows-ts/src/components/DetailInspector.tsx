@@ -298,7 +298,11 @@ export default class DetailInspector extends Component<
                 const matching = storeOntologies.find(
                   ({ id }) => ontology.id === id
                 );
-                return matching ? matching.examples : [];
+                return matching
+                  ? entities[0].entityType === 'relationship'
+                    ? matching.properties
+                    : matching.terms
+                  : [];
               })
               .toSorted((a: string, b: string) => Math.random() - 0.5)
               .toSpliced(10)

@@ -9,9 +9,10 @@ import {
 import { Action, Dispatch, Store } from 'redux';
 import { Graph, ontologies as hardcodedOntologies } from '@neo4j-arrows/model';
 import {
-  examples,
+  terms,
   ontologies,
   ontologiesCount,
+  properties,
 } from '@neo4j-arrows/ontology-search';
 import { getGraph } from '../selectors';
 import { ArrowsState } from '../reducers';
@@ -34,19 +35,33 @@ export const fetchOntologiesMiddleware =
             .then((ontologies) => {
               store.dispatch(loadOntologiesSuccess(ontologies));
               const graph: Graph = getGraph(store.getState());
-              const graphOntologies = [
-                ...graph.nodes.flatMap((node) => node.ontologies ?? []),
-                ...graph.relationships.flatMap(
-                  (relationship) => relationship.ontologies ?? []
-                ),
-              ];
               store.dispatch(loadOntologyExamplesRequest());
               Promise.all(
-                graphOntologies.map((ontology) =>
-                  examples(ontology).then((examples) => {
-                    return { ...ontology, examples };
-                  })
-                )
+                graph.nodes
+                  .flatMap((node) => node.ontologies ?? [])
+                  .map((ontology) =>
+                    terms(ontology).then((terms) => {
+                      return { ...ontology, terms };
+                    })
+                  )
+              )
+                .then((resolvedOntologies) => {
+                  store.dispatch(
+                    loadOntologyExamplesSuccess(resolvedOntologies)
+                  );
+                })
+                .catch((error) =>
+                  store.dispatch(loadOntologyExamplesFailure())
+                );
+              store.dispatch(loadOntologyExamplesRequest());
+              Promise.all(
+                graph.relationships
+                  .flatMap((relationship) => relationship.ontologies ?? [])
+                  .map((ontology) =>
+                    properties(ontology).then((properties) => {
+                      return { ...ontology, properties };
+                    })
+                  )
               )
                 .then((resolvedOntologies) => {
                   store.dispatch(

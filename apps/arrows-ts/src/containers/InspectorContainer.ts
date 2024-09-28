@@ -28,7 +28,7 @@ import DetailInspector from '../components/DetailInspector';
 import { getSelectedNodes } from '@neo4j-arrows/selectors';
 import { getOntologies, getPresentGraph } from '../selectors';
 import { toggleSelection } from '../actions/selection';
-import { examples } from '@neo4j-arrows/ontology-search';
+import { properties, terms } from '@neo4j-arrows/ontology-search';
 import { Dispatch } from 'redux';
 import {
   Cardinality,
@@ -125,8 +125,20 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       dispatch(loadOntologyExamplesRequest());
       Promise.all(
         ontologies.map((ontology: Ontology) =>
-          examples(ontology).then((examples) => {
-            return { ...ontology, examples };
+          terms(ontology).then((terms) => {
+            return { ...ontology, terms };
+          })
+        )
+      )
+        .then((resolvedOntologies) => {
+          dispatch(loadOntologyExamplesSuccess(resolvedOntologies));
+        })
+        .catch((error) => dispatch(loadOntologyExamplesFailure()));
+      dispatch(loadOntologyExamplesRequest());
+      Promise.all(
+        ontologies.map((ontology: Ontology) =>
+          properties(ontology).then((properties) => {
+            return { ...ontology, properties };
           })
         )
       )

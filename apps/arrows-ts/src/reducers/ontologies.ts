@@ -41,10 +41,16 @@ const ontologies = (
           const matching = action.ontologies.find(
             ({ id }) => id === ontology.id
           );
-          if (matching) {
+          if (matching?.terms) {
             return {
               ...ontology,
-              examples: matching.examples,
+              terms: matching.terms,
+            };
+          }
+          if (matching?.properties) {
+            return {
+              ...ontology,
+              properties: matching.properties,
             };
           }
           return ontology;

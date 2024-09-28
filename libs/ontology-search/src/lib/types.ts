@@ -34,9 +34,15 @@ export type OntologiesJson = {
 };
 
 type Term = { label: string; obo_id: string };
+type Property = { label: string; obo_id: string };
 
-type OntologyEmbedded = { terms: Term[] };
+type OntologyTermsEmbedded = { terms: Term[] };
+type OntologyPropertiesEmbedded = { properties: Property[] };
 
-export type OntologyJson = {
-  _embedded: OntologyEmbedded;
+export type OntologyTermsJson = {
+  _embedded: OntologyTermsEmbedded;
+};
+
+export type OntologyPropertiesJson = {
+  _embedded: OntologyPropertiesEmbedded;
 };
