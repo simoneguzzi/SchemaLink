@@ -212,11 +212,17 @@ export const toGraph = (
         if (fromNodeIndex >= 0 && toNodeIndex >= 0) {
           const fromNode = {
             ...nodes[fromNodeIndex],
-            examples: slot_usage['subject'].annotations?.['prompt.examples'],
+            examples: slot_usage['subject'].annotations?.['prompt.examples']
+              ? slot_usage['subject'].annotations?.['prompt.examples'].split(
+                  ','
+                )
+              : [],
           };
           const toNode = {
             ...nodes[toNodeIndex],
-            examples: slot_usage['object'].annotations?.['prompt.examples'],
+            examples: slot_usage['object'].annotations?.['prompt.examples']
+              ? slot_usage['object'].annotations?.['prompt.examples'].split(',')
+              : [],
           };
           nodes.splice(fromNodeIndex, 1, fromNode);
           nodes.splice(toNodeIndex, 1, toNode);
@@ -229,7 +235,10 @@ export const toGraph = (
             type: '',
             id: (index + nextRelationshipId).toString(),
             cardinality: Cardinality.ONE_TO_MANY,
-            examples: slot_usage['predicate'].annotations?.['prompt.examples'],
+            examples:
+              slot_usage['predicate'].annotations?.['prompt.examples'].split(
+                ','
+              ),
           });
         }
       }

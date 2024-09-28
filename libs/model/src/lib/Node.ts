@@ -11,7 +11,7 @@ export interface Node extends Entity {
   caption: string;
   status?: string;
   ontologies?: Ontology[];
-  examples?: string;
+  examples?: string[];
 }
 
 export const moveTo = (node: Node, newPosition: Point): Node => {

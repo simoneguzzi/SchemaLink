@@ -19,7 +19,7 @@ export const relationshipToRelationshipClass = (
     return {
       range: toClassName(node.caption),
       annotations: {
-        'prompt.examples': node.examples ?? '',
+        'prompt.examples': node.examples ? node.examples.join(', ') : '',
       },
     };
   };
@@ -36,7 +36,9 @@ export const relationshipToRelationshipClass = (
       predicate: {
         range: `${toRelationshipClassName(relationship)}Predicate`,
         annotations: {
-          'prompt.examples': relationship.examples ?? '',
+          'prompt.examples': relationship.examples
+            ? relationship.examples.join(', ')
+            : '',
         },
       },
     },

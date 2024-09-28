@@ -32,7 +32,7 @@ export interface Relationship extends Entity {
   fromId: Id;
   toId: Id;
   ontologies?: Ontology[];
-  examples?: string;
+  examples?: string[];
   cardinality?: Cardinality;
 }
 

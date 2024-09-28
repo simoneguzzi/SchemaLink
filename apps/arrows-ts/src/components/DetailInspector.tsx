@@ -46,7 +46,7 @@ interface DetailInspectorProps {
   mergeNodes: (selection: EntitySelection) => void;
   ontologies: OntologyState;
   onSaveCaption: (selection: EntitySelection, caption: string) => void;
-  onSaveExamples: (selection: EntitySelection, examples: string) => void;
+  onSaveExamples: (selection: EntitySelection, examples: string[]) => void;
   onConvertCaptionsToPropertyValues: () => void;
   onSaveCardinality: (
     selection: EntitySelection,
@@ -308,7 +308,7 @@ export default class DetailInspector extends Component<
               .toSpliced(10)
           : [];
         const examplesOptions = [
-          examples,
+          ...(examples ?? []),
           ...ontologiesExamples,
           ...this.state.additionalExamplesOptions,
         ].map((example, index) => {
@@ -332,7 +332,7 @@ export default class DetailInspector extends Component<
               value={
                 entityOntologies
                   ? entityOntologies.map((ontology: Ontology) => ontology.id)
-                  : undefined
+                  : []
               }
               multiple
               loading={isFetching}
@@ -361,14 +361,15 @@ export default class DetailInspector extends Component<
           <Form.Field key="_examples">
             <label>Examples</label>
             <Dropdown
-              value={examples}
+              value={examples ?? []}
               allowAdditions
               search
+              multiple
               clearable
               options={examplesOptions}
               selection
               onChange={(event, { value }) =>
-                onSaveExamples(selection, value as string)
+                onSaveExamples(selection, value as string[])
               }
               placeholder={'Provide examples for this entity'}
               loading={isFetching}

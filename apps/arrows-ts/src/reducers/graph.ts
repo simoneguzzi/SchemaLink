@@ -53,7 +53,7 @@ interface SetOntologiesAction extends SelectionAction<'SET_ONTOLOGY'> {
 }
 
 interface SetExamplesAction extends SelectionAction<'SET_EXAMPLES'> {
-  examples: string;
+  examples: string[];
 }
 
 interface SetCardinalityAction extends SelectionAction<'SET_CARDINALITY'> {

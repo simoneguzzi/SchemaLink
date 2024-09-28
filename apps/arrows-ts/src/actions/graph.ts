@@ -706,7 +706,7 @@ export const setRelationshipType = (
 
 export const setExamples = (
   selection: EntitySelection,
-  examples: string
+  examples: string[]
 ): GraphAction => ({
   category: 'GRAPH',
   type: 'SET_EXAMPLES',
