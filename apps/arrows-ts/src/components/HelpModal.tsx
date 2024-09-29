@@ -11,8 +11,15 @@ import {
   UNDO,
   getKeybindingString,
 } from '../interactions/Keybindings';
+import { Dispatch } from 'redux';
+import { ArrowsState } from '../reducers';
 
-class HelpModal extends Component {
+interface HelpModalProps {
+  onCancel: () => void;
+  showModal: boolean;
+}
+
+class HelpModal extends Component<HelpModalProps> {
   onCancel = () => {
     this.props.onCancel();
   };
@@ -44,7 +51,11 @@ class HelpModal extends Component {
           <Header size="small">New to arrows.app?</Header>
           <p>
             Learn about arrows.app by visiting{' '}
-            <a href="https://neo4j.com/labs/arrows" target="_blank">
+            <a
+              href="https://neo4j.com/labs/arrows"
+              target="_blank"
+              rel="noreferrer"
+            >
               Neo4j Labs
             </a>
             , or watching this short video:
@@ -63,7 +74,11 @@ class HelpModal extends Component {
           <p>
             To share great ideas about improving arrows.app or report problems,
             please let us know on our{' '}
-            <a href="https://feedback.neo4j.com/arrows" target="_blank">
+            <a
+              href="https://feedback.neo4j.com/arrows"
+              target="_blank"
+              rel="noreferrer"
+            >
               feedback board
             </a>
             .
@@ -72,7 +87,11 @@ class HelpModal extends Component {
           <Header size="small">Contribute</Header>
           <p>
             Willing to add features or fix problems yourself? Join us at our{' '}
-            <a href="https://github.com/neo4j-labs/arrows.app" target="_blank">
+            <a
+              href="https://github.com/neo4j-labs/arrows.app"
+              target="_blank"
+              rel="noreferrer"
+            >
               GitHub repository
             </a>
             .
@@ -86,13 +105,13 @@ class HelpModal extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: ArrowsState) => {
   return {
     showModal: state.applicationDialogs.showHelpDialog,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     onCancel: () => {
       rememberHelpDismissed();

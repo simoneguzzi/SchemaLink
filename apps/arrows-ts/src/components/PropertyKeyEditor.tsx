@@ -1,7 +1,18 @@
-import React, { Component } from 'react';
+import { FontStyle } from '@neo4j-arrows/graphics';
+import React, { ChangeEvent, Component } from 'react';
 
-export class PropertyKeyEditor extends Component {
-  handleChange = (e) => {
+interface PropertyKeyEditorProps {
+  font: FontStyle;
+  left: number;
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  onSetPropertyKey: (key: string) => void;
+  text: string;
+  top: number;
+  width: number;
+}
+
+export class PropertyKeyEditor extends Component<PropertyKeyEditorProps> {
+  handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     this.props.onSetPropertyKey(e.target.value);
   };
 

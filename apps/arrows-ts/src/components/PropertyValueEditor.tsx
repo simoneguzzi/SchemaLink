@@ -1,7 +1,18 @@
-import React, { Component } from 'react';
+import { FontStyle } from '@neo4j-arrows/graphics';
+import React, { ChangeEvent, Component } from 'react';
 
-export class PropertyValueEditor extends Component {
-  handleChange = (e) => {
+interface PropertyValueEditorProps {
+  font: FontStyle;
+  left: number;
+  onKeyDown: (event: React.KeyboardEvent) => void;
+  onSetPropertyValue: (value: string) => void;
+  text: string;
+  top: number;
+  width: number;
+}
+
+export class PropertyValueEditor extends Component<PropertyValueEditorProps> {
+  handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     this.props.onSetPropertyValue(e.target.value);
   };
 
