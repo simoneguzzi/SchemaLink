@@ -37,6 +37,7 @@ import { DetailToolbox } from './DetailToolbox';
 import { CaptionInspector } from './CaptionInspector';
 import { OntologyState } from '../reducers/ontologies';
 import { ImageInfo } from '@neo4j-arrows/graphics';
+import _ from 'lodash';
 
 interface DetailInspectorProps {
   cachedImages: Record<string, ImageInfo>;
@@ -322,6 +323,17 @@ export default class DetailInspector extends Component<
               example,
             ],
           });
+        const [relevantOntologies, rest] = _.partition(
+          storeOntologies,
+          (ontology) => ['ro', 'so', 'sio'].includes(ontology.id)
+        );
+        const options = [...relevantOntologies, ...rest].map((ontology) => {
+          return {
+            key: ontology.id,
+            text: ontology.id,
+            value: ontology.id,
+          };
+        });
 
         fields.push(
           <Form.Field key="_ontology">
@@ -338,13 +350,7 @@ export default class DetailInspector extends Component<
               loading={isFetching}
               search
               placeholder={'Select an ontology'}
-              options={storeOntologies.map((ontology) => {
-                return {
-                  key: ontology.id,
-                  text: ontology.id,
-                  value: ontology.id,
-                };
-              })}
+              options={options}
               onChange={(e, { value }) =>
                 onSaveOntology(
                   selection,
