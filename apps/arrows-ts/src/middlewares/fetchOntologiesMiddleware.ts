@@ -11,7 +11,6 @@ import { Graph, ontologies as hardcodedOntologies } from '@neo4j-arrows/model';
 import {
   terms,
   ontologies,
-  ontologiesCount,
   properties,
   MAX_PAGE_SIZE,
 } from '@neo4j-arrows/ontology-search';
@@ -30,50 +29,38 @@ export const fetchOntologiesMiddleware =
 
     if (action.type === 'GETTING_GRAPH') {
       store.dispatch(loadOntologiesRequest());
-      ontologiesCount()
-        .then((count) => {
-          ontologies(count)
-            .then((ontologies) => {
-              store.dispatch(loadOntologiesSuccess(ontologies));
-              const graph: Graph = getGraph(store.getState());
-              store.dispatch(loadOntologyExamplesRequest());
-              Promise.all(
-                graph.nodes
-                  .flatMap((node) => node.ontologies ?? [])
-                  .map((ontology) =>
-                    terms(ontology, MAX_PAGE_SIZE).then((terms) => {
-                      return { ...ontology, terms };
-                    })
-                  )
-              )
-                .then((resolvedOntologies) => {
-                  store.dispatch(
-                    loadOntologyExamplesSuccess(resolvedOntologies)
-                  );
+      ontologies(MAX_PAGE_SIZE)
+        .then((ontologies) => {
+          store.dispatch(loadOntologiesSuccess(ontologies));
+          const graph: Graph = getGraph(store.getState());
+          store.dispatch(loadOntologyExamplesRequest());
+          Promise.all(
+            graph.nodes
+              .flatMap((node) => node.ontologies ?? [])
+              .map((ontology) =>
+                terms(ontology, MAX_PAGE_SIZE).then((terms) => {
+                  return { ...ontology, terms };
                 })
-                .catch((error) =>
-                  store.dispatch(loadOntologyExamplesFailure())
-                );
-              store.dispatch(loadOntologyExamplesRequest());
-              Promise.all(
-                graph.relationships
-                  .flatMap((relationship) => relationship.ontologies ?? [])
-                  .map((ontology) =>
-                    properties(ontology, MAX_PAGE_SIZE).then((properties) => {
-                      return { ...ontology, properties };
-                    })
-                  )
               )
-                .then((resolvedOntologies) => {
-                  store.dispatch(
-                    loadOntologyExamplesSuccess(resolvedOntologies)
-                  );
-                })
-                .catch((error) =>
-                  store.dispatch(loadOntologyExamplesFailure())
-                );
+          )
+            .then((resolvedOntologies) => {
+              store.dispatch(loadOntologyExamplesSuccess(resolvedOntologies));
             })
-            .catch((error) => onFailedLoadOntologies());
+            .catch((error) => store.dispatch(loadOntologyExamplesFailure()));
+          store.dispatch(loadOntologyExamplesRequest());
+          Promise.all(
+            graph.relationships
+              .flatMap((relationship) => relationship.ontologies ?? [])
+              .map((ontology) =>
+                properties(ontology, MAX_PAGE_SIZE).then((properties) => {
+                  return { ...ontology, properties };
+                })
+              )
+          )
+            .then((resolvedOntologies) => {
+              store.dispatch(loadOntologyExamplesSuccess(resolvedOntologies));
+            })
+            .catch((error) => store.dispatch(loadOntologyExamplesFailure()));
         })
         .catch((error) => onFailedLoadOntologies());
     }
