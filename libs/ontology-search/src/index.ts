@@ -43,7 +43,13 @@ export const terms = async (
   return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/terms?size=${size}`).then(
     (response) =>
       response.json().then((data: OntologyTermsJson) => {
-        return data._embedded.terms.map(({ label }) => label);
+        return data._embedded.terms
+          .filter(({ obo_id }) =>
+            obo_id
+              .toLocaleLowerCase()
+              .startsWith(ontology.id.toLocaleLowerCase())
+          )
+          .map(({ label }) => label);
       })
   );
 };
@@ -56,7 +62,11 @@ export const properties = async (
     `${ONTOLOGIES_LIST}/${ontology.id}/properties?size=${size}`
   ).then((response) =>
     response.json().then((data: OntologyPropertiesJson) => {
-      return data._embedded.properties.map(({ label }) => label);
+      return data._embedded.properties
+        .filter(({ obo_id }) =>
+          obo_id.toLocaleLowerCase().startsWith(ontology.id.toLocaleLowerCase())
+        )
+        .map(({ label }) => label);
     })
   );
 };
