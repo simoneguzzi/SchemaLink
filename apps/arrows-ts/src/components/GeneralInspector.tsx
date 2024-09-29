@@ -56,8 +56,8 @@ export default class GeneralInspector extends Component<GeneralInspectorProps> {
           <Form.Field key="_selected">
             <label>
               {graph.nodes.length + graph.relationships.length > 0
-                ? 'Graph:'
-                : 'Empty graph'}
+                ? 'Schema:'
+                : 'Empty schema'}
             </label>
             {renderCounters(
               graph.nodes.map((node) => node.id),

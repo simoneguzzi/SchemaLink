@@ -136,7 +136,7 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
             <p>
               Alternatively, if you don't provide a JSON or LinkML object, input
               will be treated as plain text, delimited by tabs and line breaks.
-              For example, copy and paste from a spreadsheet to create one node
+              For example, copy and paste from a spreadsheet to create one class
               per cell.
             </p>
             <p>

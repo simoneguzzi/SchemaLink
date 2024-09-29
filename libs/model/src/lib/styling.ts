@@ -11,7 +11,7 @@ import { Entity } from './Id';
 export type StyleFunction = (s: string) => string | number;
 
 const hasIcon = (node: Entity, style: StyleFunction) =>
-  !!style('node-icon-image') || !!style('relationship-icon-image');
+  !!style('class-icon-image') || !!style('relationship-icon-image');
 const hasCaption = (node: Node) => node.caption && node.caption.length > 0;
 const hasType = (relationship: Relationship) =>
   relationship.type && relationship.type.length > 0;
@@ -31,14 +31,14 @@ const styleFilters = {
   NodeWithInsideDetail: {
     relevantToNode: (node: Node, style: StyleFunction) =>
       (hasIcon(node, style) && style('icon-position') === 'inside') ||
-      (hasCaption(node) && style('caption-position') === 'inside') ||
-      (hasProperty(node) && style('property-position') === 'inside'),
+      (hasCaption(node) && style('class-name-position') === 'inside') ||
+      (hasProperty(node) && style('attribute-position') === 'inside'),
   },
   NodeWithOutsideDetail: {
     relevantToNode: (node: Node, style: StyleFunction) =>
       (hasIcon(node, style) && style('icon-position') === 'outside') ||
-      (hasCaption(node) && style('caption-position') === 'outside') ||
-      (hasProperty(node) && style('property-position') === 'outside'),
+      (hasCaption(node) && style('class-name-position') === 'outside') ||
+      (hasProperty(node) && style('attribute-position') === 'outside'),
   },
   NodeWithIcon: {
     relevantToNode: hasIcon,
@@ -52,7 +52,7 @@ const styleFilters = {
   },
   NodeWithCaptionOutside: {
     relevantToNode: (node: Node, style: StyleFunction) =>
-      hasCaption(node) && style('caption-position') === 'outside',
+      hasCaption(node) && style('class-name-position') === 'outside',
   },
   Relationship: {
     relevantToRelationship: () => true,
@@ -150,11 +150,11 @@ export const styleAttributeGroups = [
     ],
   },
   {
-    name: 'Nodes',
+    name: 'Classes',
     entityTypes: ['node'],
     attributes: [
       {
-        key: 'node-color',
+        key: 'class-color',
         appliesTo: 'Node',
         type: 'color',
         defaultValue: white,
@@ -178,13 +178,13 @@ export const styleAttributeGroups = [
         defaultValue: defaultNodeRadius,
       },
       {
-        key: 'node-padding',
+        key: 'class-padding',
         appliesTo: 'NodeWithInsideDetail',
         type: 'spacing',
         defaultValue: 5,
       },
       {
-        key: 'node-margin',
+        key: 'class-margin',
         appliesTo: 'NodeWithOutsideDetail',
         type: 'spacing',
         defaultValue: 2,
@@ -196,13 +196,13 @@ export const styleAttributeGroups = [
         defaultValue: 'auto',
       },
       {
-        key: 'node-icon-image',
+        key: 'class-icon-image',
         appliesTo: 'Node',
         type: 'image',
         defaultValue: '',
       },
       {
-        key: 'node-background-image',
+        key: 'class-background-image',
         appliesTo: 'Node',
         type: 'image',
         defaultValue: '',
@@ -228,35 +228,35 @@ export const styleAttributeGroups = [
     ],
   },
   {
-    name: 'Node Captions',
+    name: 'Class Names',
     entityTypes: ['node'],
     attributes: [
       {
-        key: 'caption-position',
+        key: 'class-name-position',
         appliesTo: 'NodeWithCaption',
         type: 'inside-outside',
         defaultValue: 'inside',
       },
       {
-        key: 'caption-max-width',
+        key: 'class-name-max-width',
         appliesTo: 'NodeWithCaptionOutside',
         type: 'radius',
         defaultValue: 200,
       },
       {
-        key: 'caption-color',
+        key: 'class-name-color',
         appliesTo: 'NodeWithCaption',
         type: 'color',
         defaultValue: black,
       },
       {
-        key: 'caption-font-size',
+        key: 'class-name-font-size',
         appliesTo: 'NodeWithCaption',
         type: 'font-size',
         defaultValue: defaultFontSize,
       },
       {
-        key: 'caption-font-weight',
+        key: 'class-name-font-weight',
         appliesTo: 'NodeWithCaption',
         type: 'font-weight',
         defaultValue: 'normal',
@@ -264,7 +264,7 @@ export const styleAttributeGroups = [
     ],
   },
   {
-    name: 'Node Labels',
+    name: 'Class Labels',
     entityTypes: ['node'],
     attributes: [
       {
@@ -432,35 +432,35 @@ export const styleAttributeGroups = [
     ],
   },
   {
-    name: 'Properties',
+    name: 'Attributes',
     entityTypes: ['node', 'relationship'],
     attributes: [
       {
-        key: 'property-position',
+        key: 'attribute-position',
         appliesTo: 'NodeOrRelationshipWithProperty',
         type: 'inside-outside',
         defaultValue: 'outside',
       },
       {
-        key: 'property-alignment',
+        key: 'attribute-alignment',
         appliesTo: 'NodeOrRelationshipWithProperty',
-        type: 'property-alignment',
+        type: 'attribute-alignment',
         defaultValue: 'colon',
       },
       {
-        key: 'property-color',
+        key: 'attribute-color',
         appliesTo: 'NodeOrRelationshipWithProperty',
         type: 'color',
         defaultValue: black,
       },
       {
-        key: 'property-font-size',
+        key: 'attribute-font-size',
         appliesTo: 'NodeOrRelationshipWithProperty',
         type: 'font-size',
         defaultValue: 16,
       },
       {
-        key: 'property-font-weight',
+        key: 'attribute-font-weight',
         appliesTo: 'NodeOrRelationshipWithProperty',
         type: 'font-weight',
         defaultValue: 'normal',
@@ -533,7 +533,7 @@ export const styleTypes: Record<string, EditorConfig> = {
     editor: 'dropdown',
     options: ['parallel', 'perpendicular', 'horizontal'],
   },
-  'property-alignment': { editor: 'dropdown', options: ['colon', 'center'] },
+  'attribute-alignment': { editor: 'dropdown', options: ['colon', 'center'] },
   'label-display': { editor: 'dropdown', options: ['pill', 'bare'] },
   attachment: {
     editor: 'dropdown',

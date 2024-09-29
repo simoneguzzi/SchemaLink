@@ -13,7 +13,7 @@ export class GeneralToolbox extends Component {
         floated="right"
         size="small"
         icon="circle"
-        content="Add Node"
+        content="Add Class"
         onClick={this.props.onPlusNodeClick}
       />
     );

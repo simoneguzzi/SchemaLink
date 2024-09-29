@@ -49,7 +49,7 @@ class App extends Component<AppProps> {
     );
     window.addEventListener('copy', this.handleCopy.bind(this));
     window.addEventListener('paste', this.handlePaste.bind(this));
-    window.addEventListener('message', this.handleMessage.bind(this));
+    // window.addEventListener('message', this.handleMessage.bind(this));
   }
 
   render() {

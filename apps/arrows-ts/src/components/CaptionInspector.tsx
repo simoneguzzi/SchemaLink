@@ -32,7 +32,7 @@ export class CaptionInspector extends Component<CaptionInspectorProps> {
             basic
             color="black"
             size="tiny"
-            content="Use as properties"
+            content="Use as attributes"
             type="button"
           />
         </Form.Field>
@@ -41,7 +41,7 @@ export class CaptionInspector extends Component<CaptionInspectorProps> {
 
     return (
       <Form.Field key="_caption">
-        <label>Caption</label>
+        <label>Class Name</label>
         <Popup
           trigger={textBox}
           content={popupContent}

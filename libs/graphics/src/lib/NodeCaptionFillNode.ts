@@ -27,12 +27,12 @@ export class NodeCaptionFillNode {
     this.radius = radius;
     this.editing = editing;
     this.font = {
-      fontWeight: style('caption-font-weight') as string,
-      fontSize: style('caption-font-size') as number,
+      fontWeight: style('class-name-font-weight') as string,
+      fontSize: style('class-name-font-size') as number,
       fontFamily: style('font-family') as string,
     };
     textMeasurement.font = this.font;
-    this.fontColor = style('caption-color') as string;
+    this.fontColor = style('class-name-color') as string;
     this.orientation = { horizontal: 'center', vertical: 'center' };
     this.lineHeight = this.font.fontSize * 1.2;
     const measureWidth = (s: string) => textMeasurement.measureText(s).width;

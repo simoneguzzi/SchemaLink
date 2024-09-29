@@ -56,8 +56,8 @@ export class VisualNode {
 
     this.internalRadius = style('radius') as number;
     this.radius = this.internalRadius + style('border-width');
-    this.outsideComponentRadius = this.radius + style('node-margin');
-    this.fitRadius = this.internalRadius - style('node-padding');
+    this.outsideComponentRadius = this.radius + style('class-margin');
+    this.fitRadius = this.internalRadius - style('class-padding');
     this.background = new NodeBackground(
       node.position,
       this.internalRadius,
@@ -76,10 +76,10 @@ export class VisualNode {
     this.insideComponents = new ComponentStack();
     this.outsideComponents = new ComponentStack();
 
-    const captionPosition = style('caption-position');
+    const captionPosition = style('class-name-position');
     const labelPosition = style('label-position');
-    const propertyPosition = style('property-position');
-    const iconImage = style('node-icon-image');
+    const propertyPosition = style('attribute-position');
+    const iconImage = style('class-icon-image');
     const iconPosition = style('icon-position');
     const hasIcon = !!iconImage;
     const hasCaption = !!node.caption;
@@ -103,7 +103,7 @@ export class VisualNode {
         case 'inside':
           this.insideComponents.push(
             (this.icon = new NodeIconInside(
-              'node-icon-image',
+              'class-icon-image',
               editing,
               style,
               imageCache
@@ -113,7 +113,7 @@ export class VisualNode {
         default:
           this.outsideComponents.push(
             (this.icon = new IconOutside(
-              'node-icon-image',
+              'class-icon-image',
               this.outsideOrientation,
               editing,
               style,

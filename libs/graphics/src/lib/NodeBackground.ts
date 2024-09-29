@@ -28,14 +28,14 @@ export class NodeBackground {
     this.position = position;
     this.internalRadius = internalRadius;
     this.editing = editing;
-    this.backgroundColor = style('node-color') as string;
+    this.backgroundColor = style('class-color') as string;
     this.borderWidth = style('border-width') as number;
     this.borderColor = style('border-color') as string;
     this.selectionColor = adaptForBackground(
       this.editing ? selectionHandle : selectionBorder,
       style
     );
-    const backgroundImageUrl = style('node-background-image') as string;
+    const backgroundImageUrl = style('class-background-image') as string;
     // eslint-disable-next-line no-extra-boolean-cast
     if (!!backgroundImageUrl) {
       this.imageInfo = getCachedImage(imageCache, backgroundImageUrl);

@@ -35,18 +35,18 @@ export class PropertiesBox {
   ) {
     this.editing = editing;
     this.font = {
-      fontWeight: style('property-font-weight') as string,
-      fontSize: style('property-font-size') as number,
+      fontWeight: style('attribute-font-weight') as string,
+      fontSize: style('attribute-font-size') as number,
       fontFamily: style('font-family') as string,
     };
     textMeasurement.font = this.font;
-    this.fontColor = style('property-color') as string;
+    this.fontColor = style('attribute-color') as string;
     this.selectionColor = adaptForBackground(
       this.editing ? selectionHandle : selectionBorder,
       style
     );
     this.lineHeight = this.font.fontSize * 1.2;
-    this.alignment = style('property-alignment') as string;
+    this.alignment = style('attribute-alignment') as string;
     this.properties = Object.keys(properties).map((key) => ({
       key,
       value: properties[key],

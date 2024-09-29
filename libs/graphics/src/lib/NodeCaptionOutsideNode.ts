@@ -37,12 +37,12 @@ export class NodeCaptionOutsideNode {
     this.orientation = orientation;
     this.editing = editing;
     this.font = {
-      fontWeight: style('caption-font-weight') as string,
-      fontSize: style('caption-font-size') as number,
+      fontWeight: style('class-name-font-weight') as string,
+      fontSize: style('class-name-font-size') as number,
       fontFamily: style('font-family') as string,
     };
     textMeasurement.font = this.font;
-    this.fontColor = style('caption-color') as string;
+    this.fontColor = style('class-name-color') as string;
     this.selectionColor = adaptForBackground(
       this.editing ? selectionHandle : selectionBorder,
       style
@@ -51,7 +51,7 @@ export class NodeCaptionOutsideNode {
     const measureWidth = (s: string) => textMeasurement.measureText(s).width;
     this.layout = fitTextToRectangle(
       caption,
-      style('caption-max-width') as number,
+      style('class-name-max-width') as number,
       measureWidth
     );
     this.width = this.layout.actualWidth;

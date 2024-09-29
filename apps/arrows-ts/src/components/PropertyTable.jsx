@@ -95,7 +95,7 @@ export default class PropertyTable extends Component {
           propertiesList.find((prop) => prop.key === propertyKey).key = value;
           this.setState({
             local: true,
-            error: 'Duplicate properties found. Please rename the property.',
+            error: 'Duplicate attributes found. Please rename the attribute.',
             properties: propertiesList,
             lastValidKey: propertyKey,
             invalidIndex: index,
@@ -129,7 +129,7 @@ export default class PropertyTable extends Component {
     });
     return (
       <Form.Field key="propertiesTable">
-        <label>Properties</label>
+        <label>Attributes</label>
         <Table compact collapsing style={{ marginTop: 0 }}>
           <Table.Body>{rows}</Table.Body>
         </Table>
@@ -142,7 +142,7 @@ export default class PropertyTable extends Component {
           floated="right"
           size="tiny"
           icon="plus"
-          content="Property"
+          content="Attribute"
           type="button"
           disabled={error}
         />

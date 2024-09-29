@@ -64,7 +64,7 @@ export class GraphTextEditors extends Component<GraphTextEditorsProps> {
               visualNode.node,
               styleAttribute
             )(this.props.visualGraph.graph);
-          const captionPosition = style('caption-position');
+          const captionPosition = style('class-name-position');
           switch (captionPosition) {
             case 'inside': {
               const insideCaption = new NodeCaptionFillNode(

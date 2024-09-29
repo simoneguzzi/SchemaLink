@@ -94,7 +94,7 @@ export const handlePaste = (pasteEvent) => {
             dispatch(
               setArrowsProperty(
                 selection,
-                'node-background-image',
+                'class-background-image',
                 shrunkenImageUrl
               )
             );
@@ -107,7 +107,7 @@ export const handlePaste = (pasteEvent) => {
       },
       onSvgImageUrl: (imageUrl) => {
         if (selection.entities.length > 0) {
-          dispatch(setArrowsProperty(selection, 'node-icon-image', imageUrl));
+          dispatch(setArrowsProperty(selection, 'class-icon-image', imageUrl));
         } else {
           dispatch(setGraphStyle('background-image', imageUrl));
         }

@@ -28,6 +28,17 @@ export const renderCounters = (
       onSelect(entities);
     };
 
+    function visualEntityType(entityType: string) {
+      switch (entityType) {
+        case 'node':
+          return 'classes';
+        case 'relationship':
+          return 'relationships';
+        default:
+          return `${entityType}s`;
+      }
+    }
+
     switch (length) {
       case 0:
         break;
@@ -36,13 +47,13 @@ export const renderCounters = (
         parts.push(
           <Label
             as="a"
-            key={entityType}
+            key={visualEntityType(entityType)}
             size="large"
             color={color}
             onClick={selectOneEntityType}
           >
             <Icon name={iconName} />
-            {entityType + 's:'}
+            {visualEntityType(entityType) + ':'}
             <Label.Detail>{length}</Label.Detail>
           </Label>
         );

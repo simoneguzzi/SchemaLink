@@ -1,6 +1,6 @@
 import { Action } from 'redux';
 
-export const defaultName = 'Untitled graph';
+export const defaultName = 'Untitled schema';
 
 interface DiagramNameWithName
   extends Action<
