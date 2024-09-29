@@ -12,6 +12,7 @@ export * from './lib/NodeCaptionFillNode';
 export * from './lib/NodeCaptionInsideNode';
 export * from './lib/NodeCaptionOutsideNode';
 export * from './lib/ParallelArrow';
+export * from './lib/PropertiesBox';
 export * from './lib/RectilinearArrow';
 export * from './lib/relationshipAttachment';
 export * from './lib/RelationshipType';

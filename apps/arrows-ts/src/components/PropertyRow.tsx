@@ -1,3 +1,4 @@
+import { PropertiesSummary, ValueSummary } from '@neo4j-arrows/model';
 import React, { Component } from 'react';
 import {
   Table,
@@ -9,8 +10,27 @@ import {
   Label,
 } from 'semantic-ui-react';
 
-export class PropertyRow extends Component {
-  constructor(props) {
+interface PropertyRowProps {
+  keyDisabled: boolean;
+  propertyKey: string;
+  propertySummary: PropertiesSummary;
+  onMergeOnValues: () => void;
+  onKeyChange: (key: string) => void;
+  valueFieldValue: string;
+  valueFieldPlaceHolder: string | null;
+  onValueChange: (value: string) => void;
+  onDeleteProperty: () => void;
+  onNext: () => void;
+  setFocusHandler: (action: unknown) => void;
+  valueDisabled: boolean;
+}
+
+interface PropertyRowState {
+  mouseOver: boolean;
+}
+
+export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
+  constructor(props: PropertyRowProps) {
     super(props);
     this.state = {
       mouseOver: false,
@@ -28,6 +48,9 @@ export class PropertyRow extends Component {
       mouseOver: false,
     });
   };
+
+  keyInput: Input | null = null;
+  valueInput: Input | null = null;
 
   componentDidMount() {
     if (!this.props.propertyKey || this.props.propertyKey.length === 0) {
@@ -53,7 +76,7 @@ export class PropertyRow extends Component {
       keyDisabled,
       valueDisabled,
     } = this.props;
-    const handleKeyPress = (source, evt) => {
+    const handleKeyPress = (source: 'key' | 'value', evt: KeyboardEvent) => {
       if (evt.key === 'Enter') {
         evt.preventDefault();
         if (source === 'key') {
@@ -64,9 +87,9 @@ export class PropertyRow extends Component {
       }
     };
 
-    const handleKeyDown = (evt) => {
+    const handleKeyDown = (evt: KeyboardEvent) => {
       if (evt.key === 'Enter' && evt.metaKey) {
-        evt.target.blur();
+        evt.target?.blur();
       }
     };
 
@@ -101,18 +124,18 @@ export class PropertyRow extends Component {
 
     const suggestedValues = propertySummary.values
       .get(propertyKey)
-      .filter((entry) => entry.value !== valueFieldValue);
-    const possibleToMergeByValue = suggestedValues.some(
+      ?.filter((entry) => entry.value !== valueFieldValue);
+    const possibleToMergeByValue = suggestedValues?.some(
       (entry) => entry.nodeCount > 1
     );
-    const suggestedValuesInSelection = suggestedValues.filter(
+    const suggestedValuesInSelection = suggestedValues?.filter(
       (entry) => entry.inSelection
     );
-    const suggestedValuesInRestOfGraph = suggestedValues.filter(
+    const suggestedValuesInRestOfGraph = suggestedValues?.filter(
       (entry) => !entry.inSelection
     );
 
-    const entryToSuggestion = (entry) => (
+    const entryToSuggestion = (entry: ValueSummary) => (
       <Table.Row key={'suggest_' + entry.value} textAlign="left">
         <Table.Cell>
           <Button
@@ -146,7 +169,7 @@ export class PropertyRow extends Component {
             />
           </Form.Field>
         ) : null}
-        {suggestedValuesInSelection.length > 0 ? (
+        {suggestedValuesInSelection && suggestedValuesInSelection.length > 0 ? (
           <Form.Field>
             <label>in selection</label>
             <Table basic="very" compact="very">
@@ -156,7 +179,8 @@ export class PropertyRow extends Component {
             </Table>
           </Form.Field>
         ) : null}
-        {suggestedValuesInRestOfGraph.length > 0 ? (
+        {suggestedValuesInRestOfGraph &&
+        suggestedValuesInRestOfGraph.length > 0 ? (
           <Form.Field>
             <label>other values</label>
             <Table basic="very" compact="very">
@@ -176,7 +200,7 @@ export class PropertyRow extends Component {
         transparent
         className={'property-key'}
         ref={(elm) => (this.keyInput = elm)}
-        onKeyPress={(evt) => handleKeyPress('key', evt)}
+        onKeyPress={(evt: KeyboardEvent) => handleKeyPress('key', evt)}
         onKeyDown={handleKeyDown}
         disabled={keyDisabled}
       />
@@ -187,7 +211,7 @@ export class PropertyRow extends Component {
         placeholder={valueFieldPlaceHolder}
         onChange={(event) => onValueChange(event.target.value)}
         ref={(elm) => (this.valueInput = elm)}
-        onKeyPress={(evt) => handleKeyPress('value', evt)}
+        onKeyPress={(evt: KeyboardEvent) => handleKeyPress('value', evt)}
         onKeyDown={handleKeyDown}
         transparent
         disabled={valueDisabled}
@@ -217,7 +241,9 @@ export class PropertyRow extends Component {
               trigger={valueField}
               content={valuePopupContent}
               on="focus"
-              {...(suggestedValues.length > 0 ? {} : { open: false })}
+              {...(suggestedValues && suggestedValues.length > 0
+                ? {}
+                : { open: false })}
               position="bottom left"
               flowing
             />

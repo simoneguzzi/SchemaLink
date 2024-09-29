@@ -64,7 +64,7 @@ interface DetailInspectorProps {
   onMergeOnValues: (selection: EntitySelection, key: string) => void;
   onSavePropertyKey: (
     selection: EntitySelection,
-    oldKey: string,
+    oldKey: string | null,
     newKey: string
   ) => void;
   onSavePropertyValue: (
@@ -278,9 +278,10 @@ export default class DetailInspector extends Component<
           onMergeOnValues={(propertyKey: string) =>
             onMergeOnValues(selection, propertyKey)
           }
-          onSavePropertyKey={(oldPropertyKey: string, newPropertyKey: string) =>
-            onSavePropertyKey(selection, oldPropertyKey, newPropertyKey)
-          }
+          onSavePropertyKey={(
+            oldPropertyKey: string | null,
+            newPropertyKey: string
+          ) => onSavePropertyKey(selection, oldPropertyKey, newPropertyKey)}
           onSavePropertyValue={(propertyKey: string, propertyValue: string) =>
             onSavePropertyValue(selection, propertyKey, propertyValue)
           }

@@ -4,8 +4,15 @@ import { isRelationship } from './Relationship';
 import { Entity } from './Id';
 import { Graph } from './Graph';
 
+export interface Property {
+  value: string;
+  status: 'CONSISTENT' | 'INCONSISTENT' | 'PARTIAL';
+}
+
+export type Properties = Record<string, Property>;
+
 export const combineProperties = (entities: Entity[]) => {
-  const properties: Record<string, any> = {};
+  const properties: Properties = {};
   let firstKey = true;
   entities.forEach((entity) => {
     if (entity.properties) {
@@ -16,7 +23,7 @@ export const combineProperties = (entities: Entity[]) => {
             currentEntry.status === 'CONSISTENT' &&
             currentEntry.value !== entity.properties[key]
           ) {
-            properties[key] = { status: 'INCONSISTENT' };
+            properties[key] = { ...properties[key], status: 'INCONSISTENT' };
           }
         } else {
           if (firstKey) {
@@ -25,13 +32,13 @@ export const combineProperties = (entities: Entity[]) => {
               value: entity.properties[key],
             };
           } else {
-            properties[key] = { status: 'PARTIAL' };
+            properties[key] = { ...properties[key], status: 'PARTIAL' };
           }
         }
       });
       Object.keys(properties).forEach((key) => {
         if (!Object.hasOwn(entity.properties, key)) {
-          properties[key] = { status: 'PARTIAL' };
+          properties[key] = { ...properties[key], status: 'PARTIAL' };
         }
       });
       firstKey = false;
@@ -40,15 +47,31 @@ export const combineProperties = (entities: Entity[]) => {
   return properties;
 };
 
+interface KeySummary {
+  key: string;
+  nodeCount: number;
+}
+
+export interface ValueSummary {
+  value: string;
+  inSelection: boolean;
+  nodeCount: number;
+}
+
+export interface PropertiesSummary {
+  keys: KeySummary[];
+  values: Map<string, ValueSummary[]>;
+}
+
 export const summarizeProperties = (
   selectedEntities: Entity[],
   graph: Graph
-) => {
-  const keys: { key: string; nodeCount: number }[] = [],
-    values = new Map<
-      string,
-      { value: string; inSelection: boolean; nodeCount: number }[]
-    >();
+): PropertiesSummary => {
+  const keys: KeySummary[] = [];
+  const values = new Map<
+    string,
+    { value: string; inSelection: boolean; nodeCount: number }[]
+  >();
 
   const keysInSelection = new Set<string>();
   selectedEntities.forEach((entity) => {

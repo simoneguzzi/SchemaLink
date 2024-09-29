@@ -1,15 +1,39 @@
 import React, { Component } from 'react';
 import { Form, Button, Table, Message } from 'semantic-ui-react';
 import { PropertyRow } from './PropertyRow';
+import { Properties, PropertiesSummary, Property } from '@neo4j-arrows/model';
 
-const objectToList = (object) =>
-  Object.keys(object).map((key) => ({
+const objectToList = (
+  object: Properties
+): { key: string; value: Property }[] => {
+  return Object.keys(object).map((key) => ({
     key,
     value: object[key],
   }));
+};
 
-export default class PropertyTable extends Component {
-  constructor(props) {
+interface PropertyTableProps {
+  properties: Properties;
+  propertySummary: PropertiesSummary;
+  onMergeOnValues: (key: string) => void;
+  onSavePropertyKey: (oldKey: string | null, newKey: string) => void;
+  onSavePropertyValue: (key: string, value: string) => void;
+  onDeleteProperty: (key: string) => void;
+}
+
+interface PropertyTableState {
+  local: boolean;
+  properties: { key: string; value: Property }[] | null;
+  error: string | null;
+  lastValidKey: string | null;
+  invalidIndex: number | null;
+}
+
+export default class PropertyTable extends Component<
+  PropertyTableProps,
+  PropertyTableState
+> {
+  constructor(props: PropertyTableProps) {
     super(props);
     this.focusHandlers = [];
     this.state = {
@@ -21,7 +45,9 @@ export default class PropertyTable extends Component {
     };
   }
 
-  static propertyInput(property) {
+  focusHandlers: unknown[];
+
+  static propertyInput(property: Property) {
     switch (property.status) {
       case 'CONSISTENT':
         return { valueFieldValue: property.value, valueFieldPlaceHolder: null };
@@ -56,8 +82,8 @@ export default class PropertyTable extends Component {
       lastValidKey,
       invalidIndex,
     } = this.state;
-    let propertiesList;
 
+    let propertiesList;
     if (local) {
       propertiesList = localProperties;
     } else {
@@ -68,17 +94,21 @@ export default class PropertyTable extends Component {
       onSavePropertyValue('', '');
     };
 
-    const onNextProperty = (nextIndex) => {
-      if (nextIndex === propertiesList.length) {
+    const onNextProperty = (nextIndex: number) => {
+      if (nextIndex === propertiesList?.length) {
         addEmptyProperty();
       } else {
         this.focusHandlers[nextIndex]();
       }
     };
 
-    const onPropertyKeyChange = (propertyKey, value, index) => {
+    const onPropertyKeyChange = (
+      propertyKey: string,
+      value: string,
+      index: number
+    ) => {
       if (local) {
-        if (!propertiesList.find((prop) => prop.key === value)) {
+        if (!propertiesList?.find((prop) => prop.key === value)) {
           // switch to global
           onSavePropertyKey(lastValidKey, value);
           this.setState({
@@ -90,23 +120,27 @@ export default class PropertyTable extends Component {
           });
         }
       } else {
-        if (propertiesList.find((prop) => prop.key === value)) {
-          // switch to local
-          propertiesList.find((prop) => prop.key === propertyKey).key = value;
-          this.setState({
-            local: true,
-            error: 'Duplicate attributes found. Please rename the attribute.',
-            properties: propertiesList,
-            lastValidKey: propertyKey,
-            invalidIndex: index,
-          });
+        if (propertiesList?.find((prop) => prop.key === value)) {
+          const property = propertiesList.find(
+            (prop) => prop.key === propertyKey
+          );
+          if (property) {
+            property.key = value;
+            this.setState({
+              local: true,
+              error: 'Duplicate attributes found. Please rename the attribute.',
+              properties: propertiesList,
+              lastValidKey: propertyKey,
+              invalidIndex: index,
+            });
+          }
         } else {
           onSavePropertyKey(propertyKey, value);
         }
       }
     };
 
-    const rows = propertiesList.map((prop, index) => {
+    const rows = propertiesList?.map((prop, index) => {
       const { valueFieldValue, valueFieldPlaceHolder } =
         PropertyTable.propertyInput(prop.value);
       return (
@@ -122,8 +156,8 @@ export default class PropertyTable extends Component {
           valueFieldPlaceHolder={valueFieldPlaceHolder}
           setFocusHandler={(action) => (this.focusHandlers[index] = action)}
           onNext={() => onNextProperty(index + 1)}
-          keyDisabled={error && invalidIndex !== index}
-          valueDisabled={error}
+          keyDisabled={!!error && invalidIndex !== index}
+          valueDisabled={!!error}
         />
       );
     });
@@ -144,7 +178,7 @@ export default class PropertyTable extends Component {
           icon="plus"
           content="Attribute"
           type="button"
-          disabled={error}
+          disabled={!!error}
         />
       </Form.Field>
     );
