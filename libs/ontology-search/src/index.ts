@@ -7,6 +7,7 @@ import {
 import { Ontology } from '@neo4j-arrows/model';
 
 const ONTOLOGIES_LIST = 'https://www.ebi.ac.uk/ols4/api/ontologies';
+export const MAX_PAGE_SIZE = 1000;
 
 const toOntology = ({
   config: { id, title, description, fileLocation },
@@ -35,19 +36,27 @@ export const ontologies = async (size = 20): Promise<Ontology[]> => {
   );
 };
 
-export const terms = async (ontology: Ontology): Promise<string[]> => {
-  return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/terms`).then((response) =>
-    response.json().then((data: OntologyTermsJson) => {
-      return data._embedded.terms.map(({ label }) => label);
-    })
+export const terms = async (
+  ontology: Ontology,
+  size = 20
+): Promise<string[]> => {
+  return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/terms?size=${size}`).then(
+    (response) =>
+      response.json().then((data: OntologyTermsJson) => {
+        return data._embedded.terms.map(({ label }) => label);
+      })
   );
 };
 
-export const properties = async (ontology: Ontology): Promise<string[]> => {
-  return fetch(`${ONTOLOGIES_LIST}/${ontology.id}/properties`).then(
-    (response) =>
-      response.json().then((data: OntologyPropertiesJson) => {
-        return data._embedded.properties.map(({ label }) => label);
-      })
+export const properties = async (
+  ontology: Ontology,
+  size = 20
+): Promise<string[]> => {
+  return fetch(
+    `${ONTOLOGIES_LIST}/${ontology.id}/properties?size=${size}`
+  ).then((response) =>
+    response.json().then((data: OntologyPropertiesJson) => {
+      return data._embedded.properties.map(({ label }) => label);
+    })
   );
 };
