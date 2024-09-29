@@ -13,6 +13,7 @@ import {
   ontologies,
   ontologiesCount,
   properties,
+  MAX_PAGE_SIZE,
 } from '@neo4j-arrows/ontology-search';
 import { getGraph } from '../selectors';
 import { ArrowsState } from '../reducers';
@@ -40,7 +41,7 @@ export const fetchOntologiesMiddleware =
                 graph.nodes
                   .flatMap((node) => node.ontologies ?? [])
                   .map((ontology) =>
-                    terms(ontology).then((terms) => {
+                    terms(ontology, MAX_PAGE_SIZE).then((terms) => {
                       return { ...ontology, terms };
                     })
                   )
@@ -58,7 +59,7 @@ export const fetchOntologiesMiddleware =
                 graph.relationships
                   .flatMap((relationship) => relationship.ontologies ?? [])
                   .map((ontology) =>
-                    properties(ontology).then((properties) => {
+                    properties(ontology, MAX_PAGE_SIZE).then((properties) => {
                       return { ...ontology, properties };
                     })
                   )
