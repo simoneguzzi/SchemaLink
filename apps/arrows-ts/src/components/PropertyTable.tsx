@@ -50,7 +50,10 @@ export default class PropertyTable extends Component<
   static propertyInput(property: Property) {
     switch (property.status) {
       case 'CONSISTENT':
-        return { valueFieldValue: property.value, valueFieldPlaceHolder: null };
+        return {
+          valueFieldValue: property.value.description,
+          valueFieldPlaceHolder: null,
+        };
 
       case 'INCONSISTENT':
         return {

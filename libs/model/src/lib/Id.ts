@@ -1,9 +1,23 @@
 export type Id = string; // TODO this should be a branded type
 
+export interface Attribute {
+  description: string;
+  multivalued: boolean;
+}
+
+export function toKeyValue(
+  attributes: Record<string, Attribute>
+): Record<string, string> {
+  return Object.entries(attributes).reduce(
+    (acc, [key, value]) => ({ ...acc, [key]: value.description }),
+    {}
+  );
+}
+
 export interface Entity {
   id: Id;
   entityType: string;
-  properties: Record<string, string>;
+  properties: Record<string, Attribute>;
   style: Record<string, string>;
 }
 
