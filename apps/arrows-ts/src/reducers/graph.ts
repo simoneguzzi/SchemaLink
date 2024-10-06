@@ -25,6 +25,7 @@ import {
   Relationship,
   Node,
   Guides,
+  setPropertyMultivalued,
 } from '@neo4j-arrows/model';
 import { Action } from 'redux';
 import undoable, { groupByActionTypes } from 'redux-undo';
@@ -86,6 +87,12 @@ interface SetPropertyAction
 interface SetPropertyValuesAction extends CategoryGraph<'SET_PROPERTY_VALUES'> {
   key: string;
   nodePropertyValues: Record<string, string>;
+}
+
+interface SetPropertyMultivaluedAction
+  extends SelectionAction<'SET_PROPERTY_MULTIVALUED'> {
+  key: string;
+  multivalued: boolean;
 }
 
 interface ImportAction extends CategoryGraph<'IMPORT_NODES_AND_RELATIONSHIPS'> {
@@ -191,7 +198,8 @@ export type GraphAction =
   | GettingGraphAction
   | MoveNodesAction
   | DuplicateNodesAndRelationshipsAction
-  | StylesAction;
+  | StylesAction
+  | SetPropertyMultivaluedAction;
 
 const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
   switch (action.type) {
@@ -431,6 +439,26 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
         relationships: state.relationships.map((relationship) =>
           relationshipSelected(action.selection, relationship.id)
             ? setProperty(relationship, action.key, action.value)
+            : relationship
+        ),
+      };
+    }
+
+    case 'SET_PROPERTY_MULTIVALUED': {
+      return {
+        ...state,
+        nodes: state.nodes.map((node) =>
+          nodeSelected(action.selection, node.id)
+            ? setPropertyMultivalued(node, action.key, action.multivalued)
+            : node
+        ),
+        relationships: state.relationships.map((relationship) =>
+          relationshipSelected(action.selection, relationship.id)
+            ? setPropertyMultivalued(
+                relationship,
+                action.key,
+                action.multivalued
+              )
             : relationship
         ),
       };
