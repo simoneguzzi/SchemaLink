@@ -18,6 +18,7 @@ import {
   setOntology,
   setExamples,
   setCardinality,
+  setPropertyMultivalued,
 } from '../actions/graph';
 import {
   loadOntologyExamplesRequest,
@@ -156,6 +157,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       cardinality: Cardinality
     ) => {
       dispatch(setCardinality(selection, cardinality));
+    },
+    onSavePropertyMultivalued: (
+      selection: EntitySelection,
+      key: string,
+      multivalued: boolean
+    ) => {
+      dispatch(setPropertyMultivalued(selection, key, multivalued));
     },
   };
 };

@@ -83,6 +83,11 @@ interface DetailInspectorProps {
   reverseRelationships: (selection: EntitySelection) => void;
   selectedNodes: Node[];
   selection: EntitySelection;
+  onSavePropertyMultivalued: (
+    selection: EntitySelection,
+    key: string,
+    multivalue: boolean
+  ) => void;
 }
 
 interface DetailInspectorState {
@@ -148,6 +153,7 @@ export default class DetailInspector extends Component<
       onSavePropertyValue,
       onDeleteProperty,
       onSaveOntology,
+      onSavePropertyMultivalued,
     } = this.props;
     const fields = [];
 
@@ -288,6 +294,10 @@ export default class DetailInspector extends Component<
           onDeleteProperty={(propertyKey: string) =>
             onDeleteProperty(selection, propertyKey)
           }
+          onSavePropertyMultivalued={(
+            propertyKey: string,
+            multivalued: boolean
+          ) => onSavePropertyMultivalued(selection, propertyKey, multivalued)}
         />
       );
 
