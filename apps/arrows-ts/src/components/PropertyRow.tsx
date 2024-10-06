@@ -8,10 +8,13 @@ import {
   Popup,
   Button,
   Label,
+  Checkbox,
 } from 'semantic-ui-react';
 
 interface PropertyRowProps {
   keyDisabled: boolean;
+  multivaluedFieldValue: boolean;
+  onMultivaluedChange: (multivalued: boolean) => void;
   propertyKey: string;
   propertySummary: PropertiesSummary;
   onMergeOnValues: () => void;
@@ -64,6 +67,7 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
 
   render = () => {
     const {
+      multivaluedFieldValue,
       propertyKey,
       propertySummary,
       onMergeOnValues,
@@ -71,6 +75,7 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
       valueFieldValue,
       valueFieldPlaceHolder,
       onValueChange,
+      onMultivaluedChange,
       onDeleteProperty,
       onNext,
       keyDisabled,
@@ -246,6 +251,15 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
                 : { open: false })}
               position="bottom left"
               flowing
+            />
+          </Form.Field>
+        </Table.Cell>{' '}
+        <Table.Cell width={1}>
+          <Form.Field>
+            <Checkbox
+              checked={multivaluedFieldValue}
+              onChange={(event, data) => onMultivaluedChange(!!data.checked)}
+              disabled={valueDisabled}
             />
           </Form.Field>
         </Table.Cell>
