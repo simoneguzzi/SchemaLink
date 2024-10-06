@@ -1,11 +1,11 @@
 import { isNode } from './Node';
 import { nodeStyleAttributes, relationshipStyleAttributes } from './styling';
 import { isRelationship } from './Relationship';
-import { Entity } from './Id';
+import { Attribute, Entity } from './Id';
 import { Graph } from './Graph';
 
 export interface Property {
-  value: string;
+  value: Attribute;
   status: 'CONSISTENT' | 'INCONSISTENT' | 'PARTIAL';
 }
 
@@ -21,7 +21,8 @@ export const combineProperties = (entities: Entity[]) => {
         if (currentEntry) {
           if (
             currentEntry.status === 'CONSISTENT' &&
-            currentEntry.value !== entity.properties[key]
+            currentEntry.value.description !==
+              entity.properties[key].description
           ) {
             properties[key] = { ...properties[key], status: 'INCONSISTENT' };
           }
@@ -81,11 +82,17 @@ export const summarizeProperties = (
       if (!valuesForKey) {
         values.set(key, (valuesForKey = []));
       }
-      const existingValue = valuesForKey.find((entry) => entry.value === value);
+      const existingValue = valuesForKey.find(
+        (entry) => entry.value === value.description
+      );
       if (existingValue) {
         existingValue.nodeCount++;
       } else {
-        valuesForKey.push({ value, inSelection: true, nodeCount: 1 });
+        valuesForKey.push({
+          value: value.description,
+          inSelection: true,
+          nodeCount: 1,
+        });
       }
     });
   });
@@ -106,14 +113,18 @@ export const summarizeProperties = (
           values.set(key, (valuesForKey = []));
         }
         const existingValue = valuesForKey.find(
-          (entry) => entry.value === value
+          (entry) => entry.value === value.description
         );
         if (existingValue) {
           if (!existingValue.inSelection) {
             existingValue.nodeCount++;
           }
         } else {
-          valuesForKey.push({ value, inSelection: false, nodeCount: 1 });
+          valuesForKey.push({
+            value: value.description,
+            inSelection: false,
+            nodeCount: 1,
+          });
         }
       }
     });
@@ -177,48 +188,12 @@ export const combineStyle = (entities: Entity[]) => {
   return style;
 };
 
-export const propertyKeyToDatabaseKey = (propertyKey: string) => {
-  return propertyKey === '' ? '_EMPTY_KEY' : propertyKey.replace(/_/g, '__');
-};
-
-const databaseKeyToPropertyKey = (databaseKey: string) => {
-  return databaseKey === '_EMPTY_KEY' ? '' : databaseKey.replace(/__/g, '_');
-};
-
-export const styleKeyToDatabaseKey = (styleKey: string) => {
-  return '_style-' + styleKey;
-};
-
-const databaseKeyToStyleyKey = (databaseKey: string) => {
-  return databaseKey.replace(/^_style-/, '');
-};
-
-export const propertiesFromDatabaseEntity = (entity: Entity) => {
-  return Object.keys(entity.properties).reduce((properties, propertyKey) => {
-    if (!propertyKey.startsWith('_') || propertyKey.startsWith('__')) {
-      properties[databaseKeyToPropertyKey(propertyKey)] =
-        entity.properties[propertyKey];
-    }
-    return properties;
-  }, {} as Record<string, string>);
-};
-
-export const styleFromDatabaseEntity = (entity: Entity) => {
-  return Object.keys(entity.properties).reduce((style, propertyKey) => {
-    if (propertyKey.startsWith('_style-')) {
-      style[databaseKeyToStyleyKey(propertyKey)] =
-        entity.properties[propertyKey];
-    }
-    return style;
-  }, {} as Record<string, string>);
-};
-
 export const renameProperty = <T extends Entity>(
   entity: T,
   oldPropertyKey: string,
   newPropertyKey: string
 ): T => {
-  const properties: Record<string, string> = {};
+  const properties: Record<string, Attribute> = {};
   Object.keys(entity.properties).forEach((key) => {
     if (key === oldPropertyKey) {
       properties[newPropertyKey] = entity.properties[oldPropertyKey];
@@ -238,7 +213,10 @@ export const setProperty = <T extends Entity>(
   value: string
 ): T => {
   const properties = { ...entity.properties };
-  properties[key] = value;
+  properties[key] = {
+    ...properties[key],
+    description: value,
+  };
   return {
     ...entity,
     properties,
@@ -270,7 +248,7 @@ export const removeProperty = <T extends Entity>(
   entity: T,
   keyToRemove: string
 ): T => {
-  const properties: Record<string, string> = {};
+  const properties: Record<string, Attribute> = {};
   Object.keys(entity.properties).forEach((key) => {
     if (key !== keyToRemove) {
       properties[key] = entity.properties[key];

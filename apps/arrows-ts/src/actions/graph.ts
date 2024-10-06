@@ -556,13 +556,15 @@ export const mergeOnPropertyValues = (
     const mergeSpecs: MergeSpecs[] = selectedNodes(graph, selection).reduce(
       (result: MergeSpecs[], node) => {
         const propertyValue = node.properties[propertyKey];
-        let spec = result.find((spec) => spec.propertyValue === propertyValue);
+        let spec = result.find(
+          (spec) => spec.propertyValue === propertyValue.description
+        );
         if (spec) {
           spec.purgedNodeIds.push(node.id);
           spec.positions.push(node.position);
         } else {
           spec = {
-            propertyValue,
+            propertyValue: propertyValue.description,
             survivingNodeId: node.id,
             purgedNodeIds: [],
             positions: [node.position],

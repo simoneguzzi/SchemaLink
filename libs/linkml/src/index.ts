@@ -182,9 +182,15 @@ export const toGraph = (
             id: nextNodeId.toString(),
             caption: key,
             properties: Object.entries(attributes ?? {}).reduce(
-              (properties: Record<string, string>, [key, { description }]) => ({
+              (
+                properties: Record<string, Attribute>,
+                [key, { description, multivalued }]
+              ) => ({
                 ...properties,
-                [key]: description ?? '',
+                [key]: {
+                  description: description ?? '',
+                  multivalued: multivalued ?? false,
+                },
               }),
               {}
             ),

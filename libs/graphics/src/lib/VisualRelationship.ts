@@ -1,5 +1,10 @@
 // import {getStyleSelector} from "../selectors/style";
-import { Graph, Point, getStyleSelector } from '@neo4j-arrows/model';
+import {
+  Graph,
+  Point,
+  getStyleSelector,
+  toKeyValue,
+} from '@neo4j-arrows/model';
 import { RelationshipType } from './RelationshipType';
 import { PropertiesOutside } from './PropertiesOutside';
 import { IconOutside } from './IconOutside';
@@ -14,7 +19,6 @@ import { ResolvedRelationship } from './ResolvedRelationship';
 import { ImageInfo } from './utils/ImageCache';
 import { TextMeasurementContext } from './utils/TextMeasurementContext';
 import { AnyArrow } from './AnyArrow';
-import { CanvasAdaptor } from './utils/CanvasAdaptor';
 import { TextOrientation } from './circumferentialTextAlignment';
 import { DrawingContext } from './utils/DrawingContext';
 
@@ -87,7 +91,7 @@ export class VisualRelationship {
     if (hasProperties) {
       this.components.push(
         (this.properties = new PropertiesOutside(
-          resolvedRelationship.relationship.properties,
+          toKeyValue(resolvedRelationship.relationship.properties),
           alignment,
           editing,
           style,

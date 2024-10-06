@@ -10,10 +10,14 @@ export const nodeToClass = (
 ): LinkMLClass => {
   const propertiesToAttributes = (): Record<string, Attribute> => {
     return Object.entries(node.properties).reduce(
-      (attributes: Record<string, Attribute>, [key, value]) => ({
+      (
+        attributes: Record<string, Attribute>,
+        [key, { description, multivalued }]
+      ) => ({
         ...attributes,
         [toAttributeName(key)]: {
-          description: value,
+          description,
+          multivalued,
         },
       }),
       {}
