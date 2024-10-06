@@ -223,6 +223,22 @@ export const setProperty = <T extends Entity>(
   };
 };
 
+export const setPropertyMultivalued = <T extends Entity>(
+  entity: T,
+  key: string,
+  multivalued: boolean
+): T => {
+  const properties = { ...entity.properties };
+  properties[key] = {
+    ...properties[key],
+    multivalued,
+  };
+  return {
+    ...entity,
+    properties,
+  };
+};
+
 export const setArrowsProperty = <T extends Entity>(
   entity: T,
   key: string,
