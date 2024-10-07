@@ -11,7 +11,7 @@ export class PropertiesOutside {
   height: number;
   boxPosition: Point;
   constructor(
-    properties: Record<string, string>,
+    properties: string[],
     orientation: TextOrientation,
     editing: boolean,
     style: StyleFunction,

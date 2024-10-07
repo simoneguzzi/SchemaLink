@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { PropertyKeyEditor } from './PropertyKeyEditor';
-import { PropertyValueEditor } from './PropertyValueEditor';
 import { VisualNode } from '@neo4j-arrows/graphics';
 import { EntitySelection } from '@neo4j-arrows/model';
 
@@ -12,11 +11,6 @@ interface PropertiesEditorProps {
     oldKey: string,
     newKey: string
   ) => void;
-  onSetPropertyValue: (
-    selection: EntitySelection,
-    key: string,
-    value: string
-  ) => void;
   visualNode: VisualNode;
 }
 
@@ -27,7 +21,7 @@ export class PropertiesEditor extends Component<PropertiesEditorProps> {
 
   render() {
     const nodeProperties = this.props.visualNode.properties;
-    const { selection, onSetPropertyKey, onSetPropertyValue } = this.props;
+    const { selection, onSetPropertyKey } = this.props;
     return (
       nodeProperties &&
       nodeProperties.propertiesBox.properties.map((property, index) => {
@@ -36,30 +30,13 @@ export class PropertiesEditor extends Component<PropertiesEditorProps> {
         return [
           <PropertyKeyEditor
             key={'key-' + index}
-            text={property.key}
+            text={property}
             left={boxPosition?.x}
             top={boxPosition?.y + index * propertiesBox?.lineHeight}
             width={propertiesBox?.keysWidth}
             font={propertiesBox?.font}
             onSetPropertyKey={(key: string) =>
-              onSetPropertyKey(selection, property.key, key)
-            }
-            onKeyDown={this.props.onKeyDown}
-          />,
-          <PropertyValueEditor
-            key={'value-' + index}
-            text={property.value}
-            left={
-              boxPosition.x +
-              propertiesBox.keysWidth +
-              propertiesBox.colonWidth +
-              propertiesBox.spaceWidth
-            }
-            top={boxPosition?.y + index * propertiesBox?.lineHeight}
-            width={propertiesBox?.valuesWidth}
-            font={propertiesBox?.font}
-            onSetPropertyValue={(value: string) =>
-              onSetPropertyValue(selection, property.key, value)
+              onSetPropertyKey(selection, property, key)
             }
             onKeyDown={this.props.onKeyDown}
           />,

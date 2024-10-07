@@ -10,7 +10,7 @@ export class NodePropertiesInside {
   height: number;
   boxPosition: Point;
   constructor(
-    properties: Record<string, string>,
+    properties: string[],
     editing: boolean,
     style: StyleFunction,
     textMeasurement: TextMeasurementContext

@@ -20,15 +20,13 @@ export class PropertiesBox {
   selectionColor: string;
   lineHeight: number;
   alignment: string;
-  properties: KeyValuePair[];
+  properties: string[];
   spaceWidth: number;
-  colonWidth: number;
   keysWidth = 0;
-  valuesWidth = 0;
   boxWidth = 0;
   boxHeight: number;
   constructor(
-    properties: Record<string, string>,
+    properties: string[],
     editing: boolean,
     style: StyleFunction,
     textMeasurement: TextMeasurementContext
@@ -47,34 +45,25 @@ export class PropertiesBox {
     );
     this.lineHeight = this.font.fontSize * 1.2;
     this.alignment = style('attribute-alignment') as string;
-    this.properties = Object.keys(properties).map((key) => ({
-      key,
-      value: properties[key],
-    }));
+    this.properties = properties;
     this.spaceWidth = textMeasurement.measureText(' ').width;
-    this.colonWidth = textMeasurement.measureText(':').width;
-    const maxWidth = (selector: (s: KeyValuePair) => string) => {
+    const maxWidth = () => {
       if (this.properties.length === 0) return 0;
       return Math.max(
         ...this.properties.map((property) => {
-          return textMeasurement.measureText(selector(property)).width;
+          return textMeasurement.measureText(property).width;
         })
       );
     };
 
     switch (this.editing ? 'colon' : this.alignment) {
       case 'colon':
-        this.keysWidth = maxWidth((property) => property.key) + this.spaceWidth;
-        this.valuesWidth =
-          maxWidth((property) => property.value) + this.spaceWidth;
-        this.boxWidth =
-          this.keysWidth + this.colonWidth + this.spaceWidth + this.valuesWidth;
+        this.keysWidth = maxWidth();
+        this.boxWidth = this.keysWidth + this.spaceWidth;
         break;
 
       case 'center':
-        this.boxWidth = maxWidth(
-          (property) => property.key + ': ' + property.value
-        );
+        this.boxWidth = maxWidth();
         break;
     }
     this.boxHeight = this.lineHeight * this.properties.length;
@@ -94,36 +83,22 @@ export class PropertiesBox {
     this.properties.forEach((property, index) => {
       const yPosition = (index + 0.5) * this.lineHeight;
       if (this.editing) {
-        drawTextLine(
-          ctx,
-          ':',
-          new Point(this.keysWidth + this.colonWidth, yPosition),
-          'end'
-        );
+        drawTextLine(ctx, '', new Point(this.keysWidth, yPosition), 'end');
       } else {
         switch (this.alignment) {
           case 'colon':
             drawTextLine(
               ctx,
-              property.key + ':',
-              new Point(this.keysWidth + this.colonWidth, yPosition),
+              property,
+              new Point(this.keysWidth, yPosition),
               'end'
-            );
-            drawTextLine(
-              ctx,
-              property.value,
-              new Point(
-                this.keysWidth + this.colonWidth + this.spaceWidth,
-                yPosition
-              ),
-              'start'
             );
             break;
 
           case 'center':
             drawTextLine(
               ctx,
-              property.key + ': ' + property.value,
+              property,
               new Point(this.boxWidth / 2, yPosition),
               'center'
             );

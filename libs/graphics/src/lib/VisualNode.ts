@@ -1,11 +1,5 @@
 // import {getStyleSelector} from "../selectors/style";
-import {
-  getStyleSelector,
-  Graph,
-  Node,
-  Point,
-  toKeyValue,
-} from '@neo4j-arrows/model';
+import { getStyleSelector, Graph, Node, Point } from '@neo4j-arrows/model';
 import { NodeLabelsOutsideNode } from './NodeLabelsOutsideNode';
 import { NodeCaptionInsideNode } from './NodeCaptionInsideNode';
 import { NodeBackground } from './NodeBackground';
@@ -209,7 +203,7 @@ export class VisualNode {
         case 'inside':
           this.insideComponents.push(
             (this.properties = new NodePropertiesInside(
-              toKeyValue(node.properties),
+              Object.keys(node.properties),
               editing,
               style,
               measureTextContext
@@ -220,7 +214,7 @@ export class VisualNode {
         default:
           this.outsideComponents.push(
             (this.properties = new PropertiesOutside(
-              toKeyValue(node.properties),
+              Object.keys(node.properties),
               this.outsideOrientation,
               editing,
               style,

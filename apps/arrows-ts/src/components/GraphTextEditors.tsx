@@ -230,10 +230,9 @@ export class GraphTextEditors extends Component<GraphTextEditorsProps> {
         return (
           <PropertiesEditor
             key={'properties-' + visualEntity.id}
-            visualNode={visualEntity}
+            visualNode={visualEntity as VisualNode}
             selection={this.props.selection}
             onSetPropertyKey={this.props.onSetPropertyKey}
-            onSetPropertyValue={this.props.onSetPropertyValue}
             onKeyDown={this.handleKeyDown}
           />
         );
