@@ -5,15 +5,6 @@ export interface Attribute {
   multivalued: boolean;
 }
 
-export function toKeyValue(
-  attributes: Record<string, Attribute>
-): Record<string, string> {
-  return Object.entries(attributes).reduce(
-    (acc, [key, value]) => ({ ...acc, [key]: value.description }),
-    {}
-  );
-}
-
 export interface Entity {
   id: Id;
   entityType: string;
