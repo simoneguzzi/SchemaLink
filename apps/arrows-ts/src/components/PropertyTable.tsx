@@ -3,15 +3,6 @@ import { Form, Button, Table, Message } from 'semantic-ui-react';
 import { PropertyRow } from './PropertyRow';
 import { Properties, PropertiesSummary, Property } from '@neo4j-arrows/model';
 
-const objectToList = (
-  object: Properties
-): { key: string; value: Property }[] => {
-  return Object.keys(object).map((key) => ({
-    key,
-    value: object[key],
-  }));
-};
-
 interface PropertyTableProps {
   properties: Properties;
   propertySummary: PropertiesSummary;
@@ -24,7 +15,7 @@ interface PropertyTableProps {
 
 interface PropertyTableState {
   local: boolean;
-  properties: { key: string; value: Property }[] | null;
+  properties: Properties | null;
   error: string | null;
   lastValidKey: string | null;
   invalidIndex: number | null;
@@ -92,7 +83,7 @@ export default class PropertyTable extends Component<
     if (local) {
       propertiesList = localProperties;
     } else {
-      propertiesList = objectToList(properties);
+      propertiesList = properties;
     }
 
     const addEmptyProperty = () => {
@@ -100,7 +91,7 @@ export default class PropertyTable extends Component<
     };
 
     const onNextProperty = (nextIndex: number) => {
-      if (nextIndex === propertiesList?.length) {
+      if (nextIndex === Object.entries(propertiesList ?? {}).length) {
         addEmptyProperty();
       } else {
         this.focusHandlers[nextIndex]();
@@ -113,7 +104,11 @@ export default class PropertyTable extends Component<
       index: number
     ) => {
       if (local) {
-        if (!propertiesList?.find((prop) => prop.key === value)) {
+        if (
+          Object.entries(propertiesList ?? {}).find(
+            ([key, property]) => key === value
+          )
+        ) {
           // switch to global
           onSavePropertyKey(lastValidKey, value);
           this.setState({
@@ -125,12 +120,16 @@ export default class PropertyTable extends Component<
           });
         }
       } else {
-        if (propertiesList?.find((prop) => prop.key === value)) {
-          const property = propertiesList.find(
-            (prop) => prop.key === propertyKey
+        if (
+          Object.entries(propertiesList ?? {}).find(
+            ([key, property]) => key === value
+          )
+        ) {
+          const property = Object.entries(propertiesList ?? {}).find(
+            ([key, property]) => key === value
           );
           if (property) {
-            property.key = value;
+            property[0] = value;
             this.setState({
               local: true,
               error: 'Duplicate attributes found. Please rename the attribute.',
@@ -145,31 +144,34 @@ export default class PropertyTable extends Component<
       }
     };
 
-    const rows = propertiesList?.map((prop, index) => {
-      const { valueFieldValue, valueFieldPlaceHolder } =
-        PropertyTable.propertyInput(prop.value);
-      return (
-        <PropertyRow
-          key={'row-' + index}
-          propertyKey={prop.key}
-          propertySummary={propertySummary}
-          onMergeOnValues={() => onMergeOnValues(prop.key)}
-          onKeyChange={(newKey) => onPropertyKeyChange(prop.key, newKey, index)}
-          onValueChange={(newValue) => onSavePropertyValue(prop.key, newValue)}
-          onDeleteProperty={() => onDeleteProperty(prop.key)}
-          valueFieldValue={valueFieldValue}
-          valueFieldPlaceHolder={valueFieldPlaceHolder}
-          setFocusHandler={(action) => (this.focusHandlers[index] = action)}
-          onNext={() => onNextProperty(index + 1)}
-          keyDisabled={!!error && invalidIndex !== index}
-          valueDisabled={!!error}
-          multivaluedFieldValue={prop.value.value.multivalued}
-          onMultivaluedChange={(multivalued: boolean) =>
-            onSavePropertyMultivalued(prop.key, multivalued)
-          }
-        />
-      );
-    });
+    const rows = Object.entries(propertiesList ?? {}).map(
+      ([key, prop], index) => {
+        const { valueFieldValue, valueFieldPlaceHolder } =
+          PropertyTable.propertyInput(prop);
+        console.log(prop);
+        return (
+          <PropertyRow
+            key={'row-' + index}
+            propertyKey={key}
+            propertySummary={propertySummary}
+            onMergeOnValues={() => onMergeOnValues(key)}
+            onKeyChange={(newKey) => onPropertyKeyChange(key, newKey, index)}
+            onValueChange={(newValue) => onSavePropertyValue(key, newValue)}
+            onDeleteProperty={() => onDeleteProperty(key)}
+            valueFieldValue={valueFieldValue}
+            valueFieldPlaceHolder={valueFieldPlaceHolder}
+            setFocusHandler={(action) => (this.focusHandlers[index] = action)}
+            onNext={() => onNextProperty(index + 1)}
+            keyDisabled={!!error && invalidIndex !== index}
+            valueDisabled={!!error}
+            multivaluedFieldValue={prop.value ? prop.value.multivalued : false}
+            onMultivaluedChange={(multivalued: boolean) =>
+              onSavePropertyMultivalued(key, multivalued)
+            }
+          />
+        );
+      }
+    );
     return (
       <Form.Field key="propertiesTable">
         <label>Attributes</label>
