@@ -4,9 +4,10 @@ import {
   Button,
   Modal,
   Form,
+  MessageItemProps,
+  Segment,
   TextArea,
   Message,
-  MessageItemProps,
 } from 'semantic-ui-react';
 
 interface ImportModalProps {
@@ -22,6 +23,9 @@ interface ImportModalProps {
 
 interface ImportModalState {
   errorMessage?: string;
+  prompt: string;
+  showGpt: boolean;
+  gptLoading: boolean;
   text: string;
   messageProps: MessageItemProps;
 }
@@ -31,6 +35,9 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
     super(props);
     this.state = {
       text: '',
+      prompt: '',
+      showGpt: false,
+      gptLoading: false,
       errorMessage: undefined,
       messageProps: {
         icon: 'checkmark',
@@ -118,6 +125,21 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
     }
   };
 
+  generate = async () => {
+    this.setState({ gptLoading: true });
+    await fetch(import.meta.env.VITE_OPENAI_GENERATE_ENDPOINT, {
+      body: this.state.prompt,
+      method: 'POST',
+    })
+      .then((response) => {
+        response.text().then((text) => {
+          this.setState({ text });
+          this.validateText(text);
+        });
+      })
+      .finally(() => this.setState({ gptLoading: false }));
+  };
+
   render() {
     return (
       <Modal
@@ -159,9 +181,36 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
                 hidden
                 onChange={this.fileChange}
               />
+              <Button
+                content="GPT"
+                labelPosition="left"
+                icon="chat"
+                onClick={() => this.setState({ showGpt: !this.state.showGpt })}
+              />
             </Form.Field>
+            {this.state.showGpt && (
+              <Segment
+                style={{
+                  boxShadow: 'none',
+                }}
+                loading={this.state.gptLoading}
+              >
+                <TextArea
+                  style={{
+                    fontFamily: 'monospace',
+                    marginBottom: 8,
+                  }}
+                  onChange={(event) =>
+                    this.setState({ prompt: event.target.value })
+                  }
+                />
+                <Button secondary onClick={this.generate}>
+                  Generate
+                </Button>
+              </Segment>
+            )}
             <TextArea
-              placeholder="Choose a file, or paste text here..."
+              placeholder="Choose a file, talk to the GPT, or paste text here..."
               style={{
                 height: 300,
                 fontFamily: 'monospace',
