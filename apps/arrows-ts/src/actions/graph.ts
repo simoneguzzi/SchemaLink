@@ -675,6 +675,18 @@ export const setPropertyMultivalued = (
   multivalued,
 });
 
+export const setPropertyRequired = (
+  selection: EntitySelection,
+  key: string,
+  required: boolean
+): GraphAction => ({
+  category: 'GRAPH',
+  type: 'SET_PROPERTY_REQUIRED',
+  selection,
+  key,
+  required,
+});
+
 export const removeArrowsProperty = (
   selection: EntitySelection,
   key: string

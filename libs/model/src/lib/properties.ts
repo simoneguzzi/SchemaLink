@@ -239,6 +239,22 @@ export const setPropertyMultivalued = <T extends Entity>(
   };
 };
 
+export const setPropertyRequired = <T extends Entity>(
+  entity: T,
+  key: string,
+  required: boolean
+): T => {
+  const properties = { ...entity.properties };
+  properties[key] = {
+    ...properties[key],
+    required,
+  };
+  return {
+    ...entity,
+    properties,
+  };
+};
+
 export const setArrowsProperty = <T extends Entity>(
   entity: T,
   key: string,

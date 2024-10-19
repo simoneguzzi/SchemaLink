@@ -19,6 +19,7 @@ import {
   setExamples,
   setCardinality,
   setPropertyMultivalued,
+  setPropertyRequired,
   setDescription,
 } from '../actions/graph';
 import {
@@ -165,6 +166,13 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       multivalued: boolean
     ) => {
       dispatch(setPropertyMultivalued(selection, key, multivalued));
+    },
+    onSavePropertyRequired: (
+      selection: EntitySelection,
+      key: string,
+      required: boolean
+    ) => {
+      dispatch(setPropertyRequired(selection, key, required));
     },
     onSaveDescription: (selection: EntitySelection, description: string) => {
       dispatch(setDescription(selection, description));

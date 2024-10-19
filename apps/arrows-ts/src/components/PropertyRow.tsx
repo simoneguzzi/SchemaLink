@@ -14,7 +14,9 @@ import {
 interface PropertyRowProps {
   keyDisabled: boolean;
   multivaluedFieldValue: boolean;
+  requiredFieldValue: boolean;
   onMultivaluedChange: (multivalued: boolean) => void;
+  onRequiredChange: (required: boolean) => void;
   propertyKey: string;
   propertySummary: PropertiesSummary;
   onMergeOnValues: () => void;
@@ -68,6 +70,7 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
   render = () => {
     const {
       multivaluedFieldValue,
+      requiredFieldValue,
       propertyKey,
       propertySummary,
       onMergeOnValues,
@@ -76,6 +79,7 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
       valueFieldPlaceHolder,
       onValueChange,
       onMultivaluedChange,
+      onRequiredChange,
       onDeleteProperty,
       onNext,
       keyDisabled,
@@ -259,6 +263,15 @@ export class PropertyRow extends Component<PropertyRowProps, PropertyRowState> {
             <Checkbox
               checked={multivaluedFieldValue}
               onChange={(event, data) => onMultivaluedChange(!!data.checked)}
+              disabled={valueDisabled}
+            />
+          </Form.Field>
+        </Table.Cell>
+        <Table.Cell width={1}>
+          <Form.Field>
+            <Checkbox
+              checked={requiredFieldValue}
+              onChange={(event, data) => onRequiredChange(!!data.checked)}
               disabled={valueDisabled}
             />
           </Form.Field>

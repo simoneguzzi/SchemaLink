@@ -172,8 +172,8 @@ export const themes: Theme[] = [
           // },
           caption: '',
           properties: {
-            SKU: { description: '750045', multivalued: false },
-            unit: { description: '100', multivalued: false },
+            SKU: { description: '750045', multivalued: false, required: false },
+            unit: { description: '100', multivalued: false, required: false },
           },
           style: {},
           description: '',
@@ -188,7 +188,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           properties: {
-            stock: { description: 'true', multivalued: false },
+            stock: { description: 'true', multivalued: false, required: false },
           },
           style: {},
           description: '',
@@ -390,9 +390,21 @@ export const themes: Theme[] = [
           caption: 'The Da Vinci Code',
           style: {},
           properties: {
-            released: { description: '2006', multivalued: false },
-            tagline: { description: 'Break The Codes', multivalued: false },
-            title: { description: 'The Da Vinci Code', multivalued: false },
+            released: {
+              description: '2006',
+              multivalued: false,
+              required: false,
+            },
+            tagline: {
+              description: 'Break The Codes',
+              multivalued: false,
+              required: false,
+            },
+            title: {
+              description: 'The Da Vinci Code',
+              multivalued: false,
+              required: false,
+            },
           },
           description: '',
         },

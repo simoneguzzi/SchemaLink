@@ -26,6 +26,7 @@ import {
   Node,
   Guides,
   setPropertyMultivalued,
+  setPropertyRequired,
 } from '@neo4j-arrows/model';
 import { Action } from 'redux';
 import undoable, { groupByActionTypes } from 'redux-undo';
@@ -97,6 +98,12 @@ interface SetPropertyMultivaluedAction
   extends SelectionAction<'SET_PROPERTY_MULTIVALUED'> {
   key: string;
   multivalued: boolean;
+}
+
+interface SetPropertyRequiredAction
+  extends SelectionAction<'SET_PROPERTY_REQUIRED'> {
+  key: string;
+  required: boolean;
 }
 
 interface ImportAction extends CategoryGraph<'IMPORT_NODES_AND_RELATIONSHIPS'> {
@@ -204,6 +211,7 @@ export type GraphAction =
   | DuplicateNodesAndRelationshipsAction
   | StylesAction
   | SetPropertyMultivaluedAction
+  | SetPropertyRequiredAction
   | SetDescriptionAction;
 
 const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
@@ -490,6 +498,22 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
                 action.key,
                 action.multivalued
               )
+            : relationship
+        ),
+      };
+    }
+
+    case 'SET_PROPERTY_REQUIRED': {
+      return {
+        ...state,
+        nodes: state.nodes.map((node) =>
+          nodeSelected(action.selection, node.id)
+            ? setPropertyRequired(node, action.key, action.required)
+            : node
+        ),
+        relationships: state.relationships.map((relationship) =>
+          relationshipSelected(action.selection, relationship.id)
+            ? setPropertyRequired(relationship, action.key, action.required)
             : relationship
         ),
       };

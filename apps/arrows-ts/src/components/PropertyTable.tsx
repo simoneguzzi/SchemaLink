@@ -11,6 +11,7 @@ interface PropertyTableProps {
   onSavePropertyValue: (key: string, value: string) => void;
   onDeleteProperty: (key: string) => void;
   onSavePropertyMultivalued: (key: string, multivalued: boolean) => void;
+  onSavePropertyRequired: (key: string, required: boolean) => void;
 }
 
 interface PropertyTableState {
@@ -70,6 +71,7 @@ export default class PropertyTable extends Component<
       onSavePropertyValue,
       onDeleteProperty,
       onSavePropertyMultivalued,
+      onSavePropertyRequired,
     } = this.props;
     const {
       properties: localProperties,
@@ -164,8 +166,12 @@ export default class PropertyTable extends Component<
             keyDisabled={!!error && invalidIndex !== index}
             valueDisabled={!!error}
             multivaluedFieldValue={prop.value ? prop.value.multivalued : false}
+            requiredFieldValue={prop.value ? prop.value.required : false}
             onMultivaluedChange={(multivalued: boolean) =>
               onSavePropertyMultivalued(key, multivalued)
+            }
+            onRequiredChange={(required: boolean) =>
+              onSavePropertyRequired(key, required)
             }
           />
         );

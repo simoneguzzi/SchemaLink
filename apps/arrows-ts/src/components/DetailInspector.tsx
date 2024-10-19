@@ -86,7 +86,12 @@ interface DetailInspectorProps {
   onSavePropertyMultivalued: (
     selection: EntitySelection,
     key: string,
-    multivalue: boolean
+    multivalued: boolean
+  ) => void;
+  onSavePropertyRequired: (
+    selection: EntitySelection,
+    key: string,
+    required: boolean
   ) => void;
   onSaveDescription: (selection: EntitySelection, description: string) => void;
 }
@@ -155,6 +160,7 @@ export default class DetailInspector extends Component<
       onDeleteProperty,
       onSaveOntology,
       onSavePropertyMultivalued,
+      onSavePropertyRequired,
       onSaveDescription,
     } = this.props;
     const fields = [];
@@ -316,6 +322,9 @@ export default class DetailInspector extends Component<
             propertyKey: string,
             multivalued: boolean
           ) => onSavePropertyMultivalued(selection, propertyKey, multivalued)}
+          onSavePropertyRequired={(propertyKey: string, required: boolean) =>
+            onSavePropertyRequired(selection, propertyKey, required)
+          }
         />
       );
 
