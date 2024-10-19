@@ -5,7 +5,7 @@ import { toAnnotators } from './ontologies';
 
 export const nodeToClass = (
   node: Node,
-  findNode: (id: string) => Node,
+  findNode: (id: string) => Node | undefined,
   findRelationshipFromNode: (node: Node) => Relationship[]
 ): LinkMLClass => {
   const propertiesToAttributes = (): Record<string, Attribute> => {
@@ -25,18 +25,18 @@ export const nodeToClass = (
   };
 
   const nodeOntologies = node.ontologies ?? [];
-  const [inheritance, ...rest] = findRelationshipFromNode(node).filter(
-    (relationship) =>
-      relationship.relationshipType === RelationshipType.INHERITANCE
-  );
+  const [parent, ...rest] = findRelationshipFromNode(node)
+    .filter(
+      (relationship) =>
+        relationship.relationshipType === RelationshipType.INHERITANCE
+    )
+    .map((relationship) => findNode(relationship.toId));
 
   return {
-    is_a: inheritance
-      ? toClassName(findNode(inheritance.toId).caption)
-      : SpiresCoreClasses.NamedEntity,
-    mixins: rest.map((inheritance) =>
-      toClassName(findNode(inheritance.toId).caption)
-    ),
+    is_a: parent ? toClassName(parent.caption) : SpiresCoreClasses.NamedEntity,
+    mixins: rest
+      .filter((parent) => !!parent)
+      .map((parent) => toClassName(parent.caption)),
     attributes: propertiesToAttributes(),
     id_prefixes: nodeOntologies.map((ontology) =>
       ontology.id.toLocaleUpperCase()

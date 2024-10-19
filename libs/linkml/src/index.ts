@@ -129,7 +129,10 @@ export const fromGraph = (
                   toRelationshipClassName
                 ),
               [`${toRelationshipClassName(relationship)}Predicate`]:
-                relationshipToPredicateClass(relationship, findNode),
+                relationshipToPredicateClass(
+                  relationship,
+                  toRelationshipClassName
+                ),
             }),
             {}
           )),

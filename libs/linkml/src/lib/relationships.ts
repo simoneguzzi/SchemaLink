@@ -12,10 +12,14 @@ export const findRelationshipsFromNodeFactory = (
 
 export const relationshipToRelationshipClass = (
   relationship: Relationship,
-  nodeIdToNode: (id: string) => Node,
+  nodeIdToNode: (id: string) => Node | undefined,
   toRelationshipClassName: (relationship: Relationship) => string
 ): LinkMLClass => {
-  const nodeToTripleSlot = (node: Node): Attribute => {
+  const nodeToTripleSlot = (node: Node | undefined): Attribute => {
+    if (!node) {
+      return {};
+    }
+
     return {
       range: toClassName(node.caption),
       annotations: {
@@ -29,7 +33,11 @@ export const relationshipToRelationshipClass = (
 
   return {
     is_a: SpiresCoreClasses.Triple,
-    description: `A triple where the subject is a ${fromNode.caption} and the object is a ${toNode.caption}.`,
+    description: `A triple${
+      fromNode ? ` where the subject is a ${fromNode.caption}` : ''
+    }${fromNode && toNode ? ' and' : ''}${
+      toNode ? ` where the object is a ${toNode.caption}` : ''
+    }`,
     slot_usage: {
       subject: nodeToTripleSlot(fromNode),
       object: nodeToTripleSlot(toNode),
@@ -47,7 +55,7 @@ export const relationshipToRelationshipClass = (
 
 export const relationshipToPredicateClass = (
   relationship: Relationship,
-  findNode: (id: string) => Node
+  toRelationshipClassName: (relationship: Relationship) => string
 ): LinkMLClass => {
   const relationshipOntologies = relationship.ontologies ?? [];
 
@@ -55,9 +63,9 @@ export const relationshipToPredicateClass = (
     is_a: SpiresCoreClasses.RelationshipType,
     attributes: {
       label: {
-        description: `The predicate for the ${
-          findNode(relationship.fromId).caption
-        } to ${findNode(relationship.toId).caption} relationships.`,
+        description: `The predicate for the ${toRelationshipClassName(
+          relationship
+        )} relationships.`,
       },
     },
     id_prefixes: relationshipOntologies.map((ontology) =>

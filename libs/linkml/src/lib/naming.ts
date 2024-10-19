@@ -4,8 +4,10 @@ import { camelCase, snakeCase, upperFirst } from 'lodash';
 export const toClassName = (str: string): string => upperFirst(camelCase(str));
 export const toAttributeName = (str: string): string => snakeCase(str);
 
-export const findNodeFactory = (nodes: Node[]): ((id: string) => Node) => {
-  return (id: string): Node => nodes.find((node) => node.id === id);
+export const findNodeFactory = (
+  nodes: Node[]
+): ((id: string) => Node | undefined) => {
+  return (id) => nodes.find((node) => node.id === id);
 };
 
 export const toRelationshipClassNameFactory = (
@@ -18,9 +20,9 @@ export const toRelationshipClassNameFactory = (
 
 const toRelationshipClassName = (
   { fromId, toId }: Relationship,
-  findNode: (id: string) => Node
+  findNode: (id: string) => Node | undefined
 ): string => {
-  return `${toClassName(findNode(fromId).caption)}To${toClassName(
-    findNode(toId).caption
+  return `${toClassName(findNode(fromId)?.caption ?? 'subject')}To${toClassName(
+    findNode(toId)?.caption ?? 'object'
   )}`;
 };
