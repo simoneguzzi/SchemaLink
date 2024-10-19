@@ -148,7 +148,6 @@ export default class PropertyTable extends Component<
       ([key, prop], index) => {
         const { valueFieldValue, valueFieldPlaceHolder } =
           PropertyTable.propertyInput(prop);
-        console.log(prop);
         return (
           <PropertyRow
             key={'row-' + index}
