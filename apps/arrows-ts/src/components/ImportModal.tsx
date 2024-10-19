@@ -5,10 +5,10 @@ import {
   Modal,
   Form,
   MessageItemProps,
-  Segment,
   TextArea,
   Message,
 } from 'semantic-ui-react';
+import { GptDialog } from './GptDialog';
 
 interface ImportModalProps {
   onCancel: () => void;
@@ -189,25 +189,13 @@ class ImportModal extends Component<ImportModalProps, ImportModalState> {
               />
             </Form.Field>
             {this.state.showGpt && (
-              <Segment
-                style={{
-                  boxShadow: 'none',
-                }}
+              <GptDialog
                 loading={this.state.gptLoading}
-              >
-                <TextArea
-                  style={{
-                    fontFamily: 'monospace',
-                    marginBottom: 8,
-                  }}
-                  onChange={(event) =>
-                    this.setState({ prompt: event.target.value })
-                  }
-                />
-                <Button secondary onClick={this.generate}>
-                  Generate
-                </Button>
-              </Segment>
+                onChange={(event) =>
+                  this.setState({ prompt: event.target.value })
+                }
+                onClick={this.generate}
+              />
             )}
             <TextArea
               placeholder="Choose a file, talk to the GPT, or paste text here..."
