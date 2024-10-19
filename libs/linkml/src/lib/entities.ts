@@ -8,12 +8,13 @@ export const propertiesToAttributes = (
   return Object.entries(attributes).reduce(
     (
       attributes: Record<string, LinkMLAttribute>,
-      [key, { description, multivalued }]
+      [key, { description, multivalued, required }]
     ) => ({
       ...attributes,
       [toAttributeName(key)]: {
         description,
         multivalued: multivalued ?? false,
+        required: required ?? false,
       },
     }),
     {}

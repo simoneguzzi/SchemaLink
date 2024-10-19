@@ -2,6 +2,7 @@ export type Attribute = {
   range?: string;
   description?: string;
   multivalued?: boolean;
+  required?: boolean;
   annotations?: Record<string, string>;
 };
 
