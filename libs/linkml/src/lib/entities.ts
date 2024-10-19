@@ -1,0 +1,21 @@
+import { Attribute } from '@neo4j-arrows/model';
+import { toAttributeName } from './naming';
+import { Attribute as LinkMLAttribute } from './types';
+
+export const propertiesToAttributes = (
+  attributes: Record<string, Attribute>
+): Record<string, LinkMLAttribute> => {
+  return Object.entries(attributes).reduce(
+    (
+      attributes: Record<string, LinkMLAttribute>,
+      [key, { description, multivalued }]
+    ) => ({
+      ...attributes,
+      [toAttributeName(key)]: {
+        description,
+        multivalued: multivalued ?? false,
+      },
+    }),
+    {}
+  );
+};
