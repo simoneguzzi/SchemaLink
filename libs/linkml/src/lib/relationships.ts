@@ -2,6 +2,7 @@ import { Relationship, Node } from '@neo4j-arrows/model';
 import { toAnnotators } from './ontologies';
 import { Attribute, LinkMLClass, SpiresCoreClasses } from './types';
 import { toClassName } from './naming';
+import { propertiesToAttributes } from './entities';
 
 export const findRelationshipsFromNodeFactory = (
   relationship: Relationship[]
@@ -49,6 +50,7 @@ export const relationshipToRelationshipClass = (
             : '',
         },
       },
+      ...propertiesToAttributes(relationship.properties),
     },
   };
 };
