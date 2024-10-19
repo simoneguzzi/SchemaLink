@@ -10,6 +10,7 @@ export interface Entity {
   entityType: string;
   properties: Record<string, Attribute>;
   style: Record<string, string>;
+  description: string;
 }
 
 export function asKey(id: Id) {

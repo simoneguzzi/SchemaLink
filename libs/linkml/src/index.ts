@@ -163,7 +163,7 @@ export const toGraph = (
   while (!noNewNodes) {
     noNewNodes = true;
     Object.entries(classes).forEach(
-      ([key, { is_a, mixins, attributes, id_prefixes }]) => {
+      ([key, { is_a, mixins, attributes, id_prefixes, description }]) => {
         const self = nodes.find(({ caption }) => caption === key);
         const parent = nodes.find(
           ({ caption }) => caption === is_a || (mixins && caption in mixins)
@@ -179,16 +179,14 @@ export const toGraph = (
               entityType: 'relationship',
               type: '',
               id: nextRelationshipId.toString(),
+              description: '',
             });
           }
           nextNodeId = nodes.push({
             id: nextNodeId.toString(),
             caption: key,
             properties: Object.entries(attributes ?? {}).reduce(
-              (
-                properties: Record<string, Attribute>,
-                [key, { description, multivalued }]
-              ) => ({
+              (properties, [key, { description, multivalued }]) => ({
                 ...properties,
                 [key]: {
                   description: description ?? '',
@@ -202,6 +200,7 @@ export const toGraph = (
               ({ id }) =>
                 id_prefixes && id_prefixes.includes(id.toLocaleUpperCase())
             ),
+            description: description ?? '',
           });
         }
       }
@@ -209,7 +208,7 @@ export const toGraph = (
   }
   Object.entries(classes)
     .filter(([key, { is_a }]) => is_a === SpiresCoreClasses.Triple)
-    .forEach(([key, { slot_usage }], index) => {
+    .forEach(([key, { slot_usage, description }], index) => {
       if (slot_usage) {
         const fromNodeIndex = nodes.findIndex(
           (node) => node.caption === slot_usage['subject'].range
@@ -248,6 +247,7 @@ export const toGraph = (
               slot_usage['predicate'].annotations?.['prompt.examples'].split(
                 ','
               ),
+            description: description ?? '',
           });
         }
       }

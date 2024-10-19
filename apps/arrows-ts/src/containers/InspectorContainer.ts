@@ -19,6 +19,7 @@ import {
   setExamples,
   setCardinality,
   setPropertyMultivalued,
+  setDescription,
 } from '../actions/graph';
 import {
   loadOntologyExamplesRequest,
@@ -164,6 +165,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       multivalued: boolean
     ) => {
       dispatch(setPropertyMultivalued(selection, key, multivalued));
+    },
+    onSaveDescription: (selection: EntitySelection, description: string) => {
+      dispatch(setDescription(selection, description));
     },
   };
 };

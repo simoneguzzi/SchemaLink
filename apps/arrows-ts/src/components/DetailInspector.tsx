@@ -88,6 +88,7 @@ interface DetailInspectorProps {
     key: string,
     multivalue: boolean
   ) => void;
+  onSaveDescription: (selection: EntitySelection, description: string) => void;
 }
 
 interface DetailInspectorState {
@@ -154,6 +155,7 @@ export default class DetailInspector extends Component<
       onDeleteProperty,
       onSaveOntology,
       onSavePropertyMultivalued,
+      onSaveDescription,
     } = this.props;
     const fields = [];
 
@@ -170,6 +172,22 @@ export default class DetailInspector extends Component<
       </Divider>
     );
 
+    const description = commonValue(
+      entities.map((entity: Entity) => entity.description)
+    );
+
+    fields.push(
+      <Form.Field key="description">
+        <label>Description</label>
+        <Input
+          value={description || ''}
+          onChange={(event) => onSaveDescription(selection, event.target.value)}
+          placeholder={
+            description === undefined ? '<multiple descriptions>' : null
+          }
+        />
+      </Form.Field>
+    );
     if (selectionIncludes.nodes && !selectionIncludes.relationships) {
       const value = commonValue(
         selectedNodes.map((node: Node) => node.caption)

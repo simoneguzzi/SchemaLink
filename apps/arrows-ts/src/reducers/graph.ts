@@ -49,6 +49,10 @@ interface SelectionAction<T> extends CategoryGraph<T> {
   selection: EntitySelection;
 }
 
+interface SetDescriptionAction extends SelectionAction<'SET_DESCRIPTION'> {
+  description: string;
+}
+
 interface SetOntologiesAction extends SelectionAction<'SET_ONTOLOGY'> {
   ontologies: Ontology[];
 }
@@ -199,7 +203,8 @@ export type GraphAction =
   | MoveNodesAction
   | DuplicateNodesAndRelationshipsAction
   | StylesAction
-  | SetPropertyMultivaluedAction;
+  | SetPropertyMultivaluedAction
+  | SetDescriptionAction;
 
 const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
   switch (action.type) {
@@ -220,6 +225,7 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
         caption: action.caption,
         style: action.style,
         properties: {},
+        description: '',
       });
       return {
         ...state,
@@ -238,6 +244,7 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
             caption: action.caption,
             style: action.style,
             properties: {},
+            description: '',
           };
         }),
       ];
@@ -254,6 +261,7 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
             cardinality: Cardinality.ONE_TO_MANY,
             fromId: action.sourceNodeIds[i],
             toId: action.targetNodeIds[i],
+            description: '',
           };
         }),
       ];
@@ -279,6 +287,7 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
             cardinality: Cardinality.ONE_TO_MANY,
             fromId: action.sourceNodeIds[i],
             toId: action.targetNodeIds[i],
+            description: '',
           };
         }),
       ];
@@ -315,6 +324,28 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
             ? {
                 ...relationship,
                 ontologies: action.ontologies,
+              }
+            : relationship
+        ),
+      };
+    }
+
+    case 'SET_DESCRIPTION': {
+      return {
+        ...state,
+        nodes: state.nodes.map((node) =>
+          nodeSelected(action.selection, node.id)
+            ? {
+                ...node,
+                description: action.description,
+              }
+            : node
+        ),
+        relationships: state.relationships.map((relationship) =>
+          relationshipSelected(action.selection, relationship.id)
+            ? {
+                ...relationship,
+                description: action.description,
               }
             : relationship
         ),
@@ -605,6 +636,7 @@ const graph = (state: Graph = emptyGraph(), action: GraphAction) => {
           caption: oldNode?.caption,
           style: { ...oldNode?.style },
           properties: { ...oldNode?.properties },
+          description: oldNode?.description,
         };
         newNodes.push(newNode);
       });

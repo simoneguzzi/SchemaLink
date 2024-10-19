@@ -34,6 +34,7 @@ export const nodeToClass = (
 
   return {
     is_a: parent ? toClassName(parent.caption) : SpiresCoreClasses.NamedEntity,
+    description: node.description,
     mixins: rest
       .filter((parent) => !!parent)
       .map((parent) => toClassName(parent.caption)),

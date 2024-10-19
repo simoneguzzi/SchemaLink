@@ -26,6 +26,7 @@ export const themes: Theme[] = [
           caption: 'a',
           style: {},
           properties: {},
+          description: '',
         },
         {
           id: 'n1',
@@ -38,6 +39,7 @@ export const themes: Theme[] = [
           caption: 'b',
           style: {},
           properties: {},
+          description: '',
         },
       ],
       relationships: [
@@ -51,6 +53,7 @@ export const themes: Theme[] = [
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
           cardinality: Cardinality.ONE_TO_MANY,
+          description: '',
         },
       ],
       style: {
@@ -173,6 +176,7 @@ export const themes: Theme[] = [
             unit: { description: '100', multivalued: false },
           },
           style: {},
+          description: '',
         },
         {
           id: 'n1',
@@ -187,6 +191,7 @@ export const themes: Theme[] = [
             stock: { description: 'true', multivalued: false },
           },
           style: {},
+          description: '',
         },
       ],
       relationships: [
@@ -200,6 +205,7 @@ export const themes: Theme[] = [
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
           cardinality: Cardinality.ONE_TO_MANY,
+          description: '',
         },
       ],
     },
@@ -271,6 +277,7 @@ export const themes: Theme[] = [
             'class-color': '#F79767',
           },
           properties: {},
+          description: '',
         },
         {
           id: 'n1',
@@ -283,6 +290,7 @@ export const themes: Theme[] = [
           caption: 'That thing you do',
           style: {},
           properties: {},
+          description: '',
         },
       ],
       relationships: [
@@ -296,6 +304,7 @@ export const themes: Theme[] = [
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
           cardinality: Cardinality.ONE_TO_MANY,
+          description: '',
         },
       ],
     },
@@ -367,6 +376,7 @@ export const themes: Theme[] = [
             'class-color': '#F79767',
             'border-color': '#f36924',
           },
+          description: '',
           properties: {},
         },
         {
@@ -384,6 +394,7 @@ export const themes: Theme[] = [
             tagline: { description: 'Break The Codes', multivalued: false },
             title: { description: 'The Da Vinci Code', multivalued: false },
           },
+          description: '',
         },
       ],
       relationships: [
@@ -396,6 +407,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
       ],
@@ -467,6 +479,7 @@ export const themes: Theme[] = [
           style: {
             'class-color': '#7b64ff',
           },
+          description: '',
           properties: {},
         },
         {
@@ -479,6 +492,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           style: {},
+          description: '',
           properties: {},
         },
         {
@@ -491,6 +505,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           style: {},
+          description: '',
           properties: {},
         },
         {
@@ -505,6 +520,7 @@ export const themes: Theme[] = [
           style: {
             'class-color': '#fcdc00',
           },
+          description: '',
           properties: {},
         },
         {
@@ -517,6 +533,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           style: {},
+          description: '',
           properties: {},
         },
         {
@@ -529,6 +546,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           style: {},
+          description: '',
           properties: {},
         },
         {
@@ -541,6 +559,7 @@ export const themes: Theme[] = [
           // },
           caption: '',
           style: {},
+          description: '',
           properties: {},
         },
         {
@@ -555,6 +574,7 @@ export const themes: Theme[] = [
           style: {
             'class-color': '#c45100',
           },
+          description: '',
           properties: {},
         },
       ],
@@ -568,6 +588,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -579,6 +600,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n2',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -590,6 +612,7 @@ export const themes: Theme[] = [
           fromId: 'n1',
           toId: 'n2',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -601,6 +624,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n3',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -612,6 +636,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n4',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -623,6 +648,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n5',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -634,6 +660,7 @@ export const themes: Theme[] = [
           fromId: 'n0',
           toId: 'n6',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -645,6 +672,7 @@ export const themes: Theme[] = [
           fromId: 'n5',
           toId: 'n7',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
         {
@@ -656,6 +684,7 @@ export const themes: Theme[] = [
           fromId: 'n4',
           toId: 'n1',
           relationshipType: RelationshipType.ASSOCIATION,
+          description: '',
           cardinality: Cardinality.ONE_TO_MANY,
         },
       ],

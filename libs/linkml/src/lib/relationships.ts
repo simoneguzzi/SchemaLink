@@ -37,7 +37,7 @@ export const relationshipToRelationshipClass = (
       fromNode ? ` where the subject is a ${fromNode.caption}` : ''
     }${fromNode && toNode ? ' and' : ''}${
       toNode ? ` where the object is a ${toNode.caption}` : ''
-    }`,
+    }${relationship.description ? `. ${relationship.description}` : ''}`,
     slot_usage: {
       subject: nodeToTripleSlot(fromNode),
       object: nodeToTripleSlot(toNode),

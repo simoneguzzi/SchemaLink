@@ -1,8 +1,6 @@
 import { indexablePropertyText } from './properties';
 import { completeWithDefaults } from './styling';
 import { otherNodeId } from './Relationship';
-import { nextAvailableId } from './Id';
-import { Point } from './Point';
 import { Node } from './Node';
 import { Relationship } from './Relationship';
 
@@ -14,17 +12,7 @@ export interface Graph {
 }
 export const emptyGraph = (): Graph => {
   return {
-    nodes: [
-      {
-        entityType: 'Node',
-        status: '',
-        id: nextAvailableId([]),
-        position: new Point(0, 0),
-        caption: '',
-        style: {},
-        properties: {},
-      },
-    ],
+    nodes: [],
     relationships: [],
     description: '',
     style: completeWithDefaults({}),
@@ -65,14 +53,14 @@ export const usedCodePoints = (graph: Graph) => {
     addUsedCodePoints(codePoints, node.caption);
     for (const [key, value] of Object.entries(node.properties)) {
       addUsedCodePoints(codePoints, key);
-      addUsedCodePoints(codePoints, value);
+      addUsedCodePoints(codePoints, value.description);
     }
   });
   graph.relationships.forEach((relationship) => {
     addUsedCodePoints(codePoints, relationship.type);
     for (const [key, value] of Object.entries(relationship.properties)) {
       addUsedCodePoints(codePoints, key);
-      addUsedCodePoints(codePoints, value);
+      addUsedCodePoints(codePoints, value.description);
     }
   });
   return codePoints;

@@ -718,6 +718,16 @@ export const setRelationshipType = (
   relationshipType,
 });
 
+export const setDescription = (
+  selection: EntitySelection,
+  description: string
+): GraphAction => ({
+  category: 'GRAPH',
+  type: 'SET_DESCRIPTION',
+  selection,
+  description,
+});
+
 export const setExamples = (
   selection: EntitySelection,
   examples: string[]
