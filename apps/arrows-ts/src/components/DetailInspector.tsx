@@ -29,6 +29,9 @@ import {
   Entity,
   Relationship,
   isRelationship,
+  Point,
+  Vector,
+  translate,
 } from '@neo4j-arrows/model';
 import { renderCounters } from './EntityCounters';
 import PropertyTable from './PropertyTable';
@@ -38,6 +41,9 @@ import { CaptionInspector } from './CaptionInspector';
 import { OntologyState } from '../reducers/ontologies';
 import { ImageInfo } from '@neo4j-arrows/graphics';
 import _ from 'lodash';
+import { GptDialog } from './GptDialog';
+import { fromGraph, SpiresType, toGraph } from '@neo4j-arrows/linkml';
+import yaml from 'js-yaml';
 
 interface DetailInspectorProps {
   cachedImages: Record<string, ImageInfo>;
@@ -94,10 +100,14 @@ interface DetailInspectorProps {
     required: boolean
   ) => void;
   onSaveDescription: (selection: EntitySelection, description: string) => void;
+  importNodesAndRelationships: (graph: Graph) => void;
 }
 
 interface DetailInspectorState {
   additionalExamplesOptions: string[];
+  prompt: string;
+  showGpt: boolean;
+  gptLoading: boolean;
 }
 
 export default class DetailInspector extends Component<
@@ -106,7 +116,12 @@ export default class DetailInspector extends Component<
 > {
   constructor(props: DetailInspectorProps) {
     super(props);
-    this.state = { additionalExamplesOptions: [] };
+    this.state = {
+      additionalExamplesOptions: [],
+      prompt: '',
+      showGpt: false,
+      gptLoading: false,
+    };
   }
 
   captionInput: any;
@@ -162,6 +177,7 @@ export default class DetailInspector extends Component<
       onSavePropertyMultivalued,
       onSavePropertyRequired,
       onSaveDescription,
+      importNodesAndRelationships,
     } = this.props;
     const fields = [];
 
@@ -171,6 +187,99 @@ export default class DetailInspector extends Component<
       nodes: selectedNodes.length > 0,
       relationships: relationships.length > 0,
     };
+
+    const generate = async () => {
+      this.setState({ gptLoading: true });
+      const graph: Graph = {
+        description: '',
+        relationships: relationships,
+        nodes: selectedNodes,
+        style: {},
+      };
+      const linkml = yaml.dump(fromGraph('', graph, SpiresType.LINKML));
+
+      // await fetch(import.meta.env.VITE_OPENAI_GENERATE_ENDPOINT, {
+      //   body:
+      //     'Perform the following change on the following LinkML schema:\n\n' +
+      //     `${this.state.prompt}\n\n` +
+      //     linkml,
+      //   method: 'POST',
+      // })
+      //   .then((response) => {
+      //     response.text().then((text) => {
+      //       console.log('New LinkML\n\n', text);
+      //     });
+      //   })
+      //   .finally(() => this.setState({ gptLoading: false }));
+
+      const text = `id: https://example.com/
+default_range: string
+name: ''
+title: ''
+license: https://creativecommons.org/publicdomain/zero/1.0/
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ontogpt: http://w3id.org/ontogpt/
+imports:
+  - ontogpt:core
+  - linkml:types
+classes:
+  BarToBazRelationship:
+    is_a: Triple
+    description: A triple where the subject is a Bar and where the object is a Baz
+    slot_usage:
+      subject:
+        range: Bar
+        annotations:
+          prompt.examples: ''
+      object:
+        range: Baz
+        annotations:
+          prompt.examples: ''
+      predicate:
+        range: BarToBazPredicate
+        annotations:
+          prompt.examples: ''
+      test:
+        description: A test attribute for validation or additional information.
+        required: false
+  BarToBazPredicate:
+    is_a: RelationshipType
+    attributes:
+      label:
+        description: The predicate for the BarToBaz relationships.
+      test:
+        description: A test attribute for validation or additional information.
+        required: false
+    id_prefixes: []
+    annotations: {}
+  Bar:
+    is_a: NamedEntity
+    mixins: []
+    attributes:
+      test:
+        description: A test attribute for validation or additional information.
+        required: false
+    id_prefixes: []
+    annotations: {}
+  Baz:
+    is_a: NamedEntity
+    mixins: []
+    attributes:
+      test:
+        description: A test attribute for validation or additional information.
+        required: false
+    id_prefixes: []
+    annotations: {}`;
+    };
+
+    fields.push(
+      <GptDialog
+        loading={this.state.gptLoading}
+        onChange={(event) => this.setState({ prompt: event.target.value })}
+        onClick={generate}
+      />
+    );
 
     fields.push(
       <Divider key="DataDivider" horizontal clearing style={{ paddingTop: 50 }}>

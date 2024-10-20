@@ -21,6 +21,7 @@ import {
   setPropertyMultivalued,
   setPropertyRequired,
   setDescription,
+  importNodesAndRelationships,
 } from '../actions/graph';
 import {
   loadOntologyExamplesRequest,
@@ -41,6 +42,7 @@ import {
   Cardinality,
   Entity,
   EntitySelection,
+  Graph,
   Ontology,
   RelationshipType,
 } from '@neo4j-arrows/model';
@@ -176,6 +178,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     },
     onSaveDescription: (selection: EntitySelection, description: string) => {
       dispatch(setDescription(selection, description));
+    },
+    importNodesAndRelationships: (graph: Graph) => {
+      dispatch(importNodesAndRelationships(graph));
     },
   };
 };
